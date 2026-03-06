@@ -1,0 +1,310 @@
+/**
+ * Media Tracker Pro Feature Lock Styles
+ *
+ * WPForms-style upgrade modal with blurred background content.
+ *
+ * @package Media_Tracker
+ * @since 1.3.0
+ */
+
+/* Lock Wrapper Container */
+.mt-pro-lock-wrapper {
+    position: relative;
+    min-height: 400px;
+}
+
+/* Overlay Layer */
+.mt-pro-lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 100;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 100px;
+    backdrop-filter: blur(2px);
+}
+
+/* Modal Box */
+.mt-pro-lock-modal {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 10px rgba(0, 0, 0, 0.08);
+    max-width: 600px;
+    width: 90%;
+    overflow: hidden;
+    animation: mtModalFadeIn 0.3s ease-out;
+}
+
+@keyframes mtModalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header with Warning */
+.mt-pro-lock-header {
+    background: #f3f0ff;
+    border-bottom: 1px solid #ddd6fe;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mt-pro-lock-icon {
+    color: #6366f1;
+    font-size: 16px;
+}
+
+.mt-pro-lock-notice {
+    color: #5b21b6;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Modal Body */
+.mt-pro-lock-body {
+    padding: 28px 32px;
+    text-align: center;
+}
+
+.mt-pro-lock-body h2 {
+    margin: 0 0 12px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.mt-pro-lock-body > p {
+    margin: 0 0 24px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Feature List */
+.mt-pro-lock-features {
+    list-style: none;
+    margin: 0 0 28px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    text-align: left;
+}
+
+.mt-pro-lock-features li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #334155;
+}
+
+.mt-pro-lock-body {
+    h2 {
+        justify-content: center;
+    }
+}
+
+.mt-pro-lock-features li i {
+    color: #6366f1;
+    font-size: 22   px;
+    flex-shrink: 0;
+}
+
+/* CTA Button */
+.mt-pro-lock-button {
+    display: inline-block;
+    background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+    color: #fff !important;
+    text-decoration: none !important;
+    padding: 14px 32px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(95, 28, 252, 0.35);
+}
+
+.mt-pro-lock-button:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #4c1d95 100%);
+    transform: translateY(-1px);
+}
+
+.mt-pro-lock-button:active {
+    transform: translateY(0);
+}
+
+/* Blurred Content */
+.mt-pro-lock-content {
+    filter: blur(3px);
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .mt-pro-lock-features {
+        grid-template-columns: 1fr;
+    }
+
+    .mt-pro-lock-modal {
+        width: 95%;
+    }
+
+    .mt-pro-lock-body {
+        padding: 20px;
+    }
+
+    .mt-pro-lock-body h2 {
+        font-size: 18px;
+    }
+}
+
+// Documents css
+.media-info-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+.info-card {
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	padding: 24px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+	transition: transform 0.2s, box-shadow 0.2s;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.info-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.info-card-icon {
+	width: 48px;
+	height: 48px;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 24px;
+	margin-bottom: 16px;
+}
+
+.info-card-title {
+	font-size: 18px;
+	font-weight: 600;
+	color: #1e293b;
+	margin: 0 0 8px 0;
+}
+
+.info-card-desc {
+	font-size: 14px;
+	color: #64748b;
+	line-height: 1.6;
+	margin: 0 0 20px 0;
+	flex-grow: 1;
+}
+
+.info-card-link {
+	color: #1e293b;
+	font-weight: 500;
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	font-size: 14px;
+    text-decoration: none !important;
+}
+
+.info-card-link:hover {
+	color: #4f46e5;
+}
+
+.info-card-link .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	margin-left: 4px;
+	margin-top: 2px;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+	.media-info-grid {
+		grid-template-columns: 1fr;
+	}
+	.media-video-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.media-video-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+}
+
+.video-card {
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.video-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.video-wrapper {
+	position: relative;
+	padding-bottom: 56.25%; /* 16:9 */
+	height: 0;
+	background: #000;
+}
+
+.video-wrapper iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.video-card-content {
+	padding: 1rem;
+}
+
+.video-card-content h4 {
+	margin: 0 0 0.5rem 0;
+	font-size: 16px;
+	color: #1e293b;
+}
+
+.video-card-content p {
+	margin: 0;
+	font-size: 14px;
+	color: #64748b;
+}
+
