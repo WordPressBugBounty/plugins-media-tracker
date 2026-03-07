@@ -96,13 +96,52 @@ if ( class_exists( '\Media_Tracker\Admin\Duplicate_Images' ) ) {
         }
     }
 
-    $media_tracker_per_page = 20;
+    // Get per page value from user settings
+    $media_tracker_per_page = get_user_meta( get_current_user_id(), 'duplicate_media_per_page', true );
+    if ( empty( $media_tracker_per_page ) || $media_tracker_per_page < 1 ) {
+        $media_tracker_per_page = 20;
+    }
     $media_tracker_total_items = count( $media_tracker_rows );
     // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Verifying nonce is not required for reading pagination parameters from URL.
     $media_tracker_page = isset( $_GET['mt_dup_page'] ) ? max( 1, (int) $_GET['mt_dup_page'] ) : 1;
     $media_tracker_total_pages = $media_tracker_per_page > 0 ? (int) ceil( $media_tracker_total_items / $media_tracker_per_page ) : 1;
     $media_tracker_offset = ( $media_tracker_page - 1 ) * $media_tracker_per_page;
     $media_tracker_page_rows = array_slice( $media_tracker_rows, $media_tracker_offset, $media_tracker_per_page );
+
+    // Screen Options
+    echo '<div id="screen-meta-links" class="metabox-prefs">';
+        echo '<div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">';
+            echo '<button type="button" id="show-settings-link" class="button show-settings" aria-expanded="false">';
+            echo esc_html__( 'Screen Options', 'media-tracker' );
+            echo '</button>';
+        echo '</div>';
+    echo '</div>';
+
+    echo '<div id="screen-options" class="metabox-prefs hidden">';
+        echo '<div class="screen-options-content">';
+            echo '<form id="duplicate-media-screen-options-form" method="post">';
+                wp_nonce_field( 'duplicate_media_screen_options', 'duplicate_media_screen_options_nonce' );
+                echo '<input type="hidden" name="action" value="duplicate_media_save_screen_options">';
+
+                echo '<div class="screen-options-per-page">';
+                    echo '<label for="duplicate_media_per_page">';
+                    echo esc_html__( 'Number of items per page:', 'media-tracker' );
+                    echo '</label>';
+                    echo '<input type="number" name="duplicate_media_per_page" id="duplicate_media_per_page"';
+                    echo ' value="' . esc_attr( $media_tracker_per_page ) . '"';
+                    echo ' min="1" max="999" step="1" class="screen-per-page">';
+                    echo '<span class="description">' . esc_html__( '(1-999)', 'media-tracker' ) . '</span>';
+                echo '</div>';
+
+                echo '<p class="submit">';
+                    echo '<button type="submit" name="duplicate_media_screen_options_submit"';
+                    echo ' class="button button-primary">';
+                    echo esc_html__( 'Apply', 'media-tracker' );
+                    echo '</button>';
+                echo '</p>';
+            echo '</form>';
+        echo '</div>';
+    echo '</div>';
 
     echo '<div class="media-header">';
         echo '<div class="section-title">';

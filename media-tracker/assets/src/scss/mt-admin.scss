@@ -158,7 +158,7 @@
     color: var(--text-main);
     display: flex;
     min-height: 100vh;
-    margin-top: 24px;
+    margin-top: 20px;
     width: 98.8%;
 
     h2 {
@@ -651,26 +651,164 @@
 
     // Unused Media List CSS
     .unused-media-list {
-        .wp-list-table {
-            td strong {
-                display: block;
-                margin-bottom: .2em;
-                font-size: 14px;
+        table.wp-list-table.widefat {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+
+            thead {
+                background-color: #f8fafc;
+
+                th,
+                td {
+                    padding: 14px 10px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    letter-spacing: .05em;
+                    text-transform: uppercase;
+                    color: #475569;
+                    border-bottom: 1px solid #e2e8f0;
+                    text-align: left;
+                }
+
+                th:first-child {
+                    border-top-left-radius: 8px;
+                }
+
+                th:last-child {
+                    border-top-right-radius: 8px;
+                }
+
+                .manage-column.column-cb.check-column {
+                    padding-left: 0;
+                    text-align: center;
+                }
+
+                a {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+
+                .dashicons {
+                    font-size: 16px;
+                }
             }
 
-            .media-icon {
-                float: left;
-                min-height: 60px;
-                margin: 0 9px 0 0;
+            tbody {
+                tr {
+                    transition: background-color .15s ease;
 
-                img {
-                    width: 60px;
-                    height: 60px;
+                    &:nth-child(even) {
+                        background-color: #f9fafb;
+                    }
+
+                    &:hover {
+                        background-color: #eef2ff;
+                    }
                 }
+
+                th.check-column {
+                    padding-left: 10px;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+
+                td {
+                    padding: 12px 18px;
+                    border-bottom: 1px solid #e2e8f0;
+                    vertical-align: middle;
+
+                    strong {
+                        display: block;
+                        margin-bottom: .2em;
+                        font-size: 14px;
+                    }
+                }
+
+                td:nth-child(2) {
+                    width: 40%;
+                    text-align: left;
+                }
+
+                .media-icon {
+                    float: left;
+                    min-height: 60px;
+                    margin: 0 9px 0 0;
+                    height: 60px;
+                    display: flex;
+                    align-items: center;
+                    box-shadow: 0 1px 2px rgba(15, 23, 42, .12);
+                    border-radius: 3px;
+
+                    img {
+                        width: 90%;
+                        padding: 3px;
+                        border: none;
+                    }
+                }
+
+                .filename {
+                    margin-bottom: 3px;
+                }
+            }
+
+            tbody tr:last-child td,
+            tbody tr:last-child th.check-column {
+                border-bottom: none;
+            }
+
+            tbody tr:last-child td:first-child {
+                border-bottom-left-radius: 8px;
+            }
+
+            tbody tr:last-child td:last-child {
+                border-bottom-right-radius: 8px;
+            }
+
+            tbody td:last-child,
+            tr th:last-child {
+                text-align: center;
+            }
+
+            .check-column {
+                background: transparent;
+                border-bottom: 1px solid #e2e8f0;
+                width: 3.2em;
+                padding: 10px 3px;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            a {
+                color: #1d2327;
+                transition: .3s;
+
+                &:hover {
+                    color: #6366f1;
+                }
+            }
+
+            code {
+                background: transparent;
+                padding: 0;
+                margin: 0;
+                font-size: 12px;
             }
 
             &.fixed {
                 table-layout: inherit;
+            }
+
+            .delete {
+                a {
+                    &:hover {
+                        color: #b32d2e;
+                    }
+                }
             }
         }
 
@@ -685,24 +823,6 @@
         .notice {
             h2 {
                 margin-bottom: 0;
-            }
-        }
-
-        /* Simple styling for the admin table */
-        table.widefat {
-            table-layout: inherit;
-            width: 100%;
-            margin-top: 20px;
-
-            th,
-            td {
-                padding: 10px;
-                text-align: left;
-
-                &.status {
-                    font-weight: 700;
-                    color: red;
-                }
             }
         }
     }
@@ -1330,4 +1450,297 @@
     display: flex;
     align-items: center;
     background: transparent;
+}
+
+// Screen Option - WordPress Admin Screen Options Panel Styling
+#screen-meta-links {
+    margin: 0 20px 0 0;
+    float: right;
+    position: relative;
+    z-index: 100;
+    line-height: 1.5;
+
+    // Screen Options Button
+    #screen-options-link-wrap {
+        margin: 0 0 0 6px;
+    }
+
+    #show-settings-link {
+        position: relative;
+        top: 0;
+        left: 0;
+        margin: 1px 8px 0 0;
+        padding: 5px 10px;
+        border: 1px solid #dcdcde;
+        color: #646970;
+        cursor: pointer;
+        font-size: 13px;
+        line-height: 1.5;
+        text-decoration: none;
+        transition: color 0.1s ease-in-out, background-color 0.1s ease-in-out;
+        border-radius: 3px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+
+        &:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        &:hover,
+        &:focus {
+            color: #135e96;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+        }
+
+        .dashicons {
+            margin: 0;
+            vertical-align: text-bottom;
+            font-size: 17px;
+            width: 17px;
+            height: 17px;
+        }
+
+        &.active {
+            background: #f0f0f1;
+            color: #135e96;
+        }
+    }
+}
+
+// Screen Options Panel
+#screen-options {
+    padding: 0;
+    margin: 0 18px 0px 0px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+    max-width: 100%;
+
+    &.hidden {
+        display: none;
+    }
+}
+
+.screen-options-content {
+    padding: 7px 15px 15px;
+
+    form {
+        margin: 0;
+        padding: 0;
+    }
+
+    p {
+        margin: 0 0 15px 0;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+// Per Page Input Group
+.screen-options-per-page {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+
+    label {
+        margin: 0;
+        padding: 0;
+        font-weight: 600;
+        color: #1d2327;
+        font-size: 14px;
+        line-height: 1.5;
+        cursor: pointer;
+    }
+
+    // Number input styling
+    input[type="number"] {
+        margin: 0;
+        padding: 0 8px;
+        width: 60px;
+        height: 28px;
+        line-height: 28px;
+        font-size: 14px;
+        border: 1px solid #8c8f94;
+        border-radius: 4px;
+        background: #fff;
+        color: #2c3338;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        text-align: center;
+
+        &:focus {
+            border-color: #2271b1;
+            box-shadow: 0 0 0 1px #2271b1;
+            outline: none;
+        }
+
+        &:hover {
+            border-color: #646970;
+        }
+
+        &.error {
+            border-color: #d63638;
+            box-shadow: 0 0 0 1px #d63638;
+
+            &:focus {
+                box-shadow: 0 0 0 1px #d63638;
+            }
+        }
+
+        // Remove spinner buttons
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        &[type="number"] {
+            -moz-appearance: textfield;
+        }
+    }
+
+    .description {
+        margin: 0;
+        font-style: italic;
+        color: #646970;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+}
+
+// Submit button styling
+#screen-options .submit {
+    margin: 15px 0 0 0;
+    padding: 0;
+    text-align: left;
+
+    .button {
+        margin: 0;
+        padding: 0 12px;
+        height: 30px;
+        line-height: 28px;
+        font-size: 13px;
+        vertical-align: middle;
+        transition: all 0.15s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        &:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        &.button-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none !important;
+            transform: none !important;
+
+            &:hover {
+                transform: none !important;
+            }
+        }
+
+        &.button-success {
+            background: #00a32a;
+            border-color: #00a32a;
+            color: #fff;
+
+            &:hover {
+                background: #009a28;
+                border-color: #009a28;
+            }
+        }
+    }
+}
+
+// Validation messages
+.screen-options-validation {
+    display: none;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+
+    &.error {
+        display: block;
+        background: #f6eded;
+        border-left: 4px solid #d63638;
+        color: #6e181b;
+    }
+
+    &.success {
+        display: block;
+        background: #edf7ed;
+        border-left: 4px solid #00a32a;
+        color: #114411;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 782px) {
+    #screen-meta-links {
+        float: none;
+        margin: 0 0 10px 0;
+        text-align: right;
+        padding: 10px 0 0;
+    }
+
+    #screen-options {
+        margin: 0 0 20px 0;
+    }
+
+    .screen-options-per-page {
+        flex-wrap: wrap;
+        padding: 10px;
+
+        &.focused {
+            padding: 10px;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            order: 2;
+        }
+
+        label {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            order: 3;
+        }
+    }
+
+    #screen-options .submit {
+        text-align: left;
+
+        .button {
+            width: 100%;
+        }
+    }
+}
+
+// Shake animation for validation errors
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.screen-options-per-page.shake {
+    animation: shake 0.5s ease-in-out;
 }

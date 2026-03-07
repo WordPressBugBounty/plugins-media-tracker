@@ -363,6 +363,9 @@ class Duplicate_Images {
 
             // Invalidate dashboard stats cache
             delete_transient( 'media_tracker_dashboard_stats_v8' );
+
+            // Clear duplicate hashes cache to reflect new scan results
+            delete_transient( 'media_tracker_duplicate_hashes_cache' );
         } else {
             // Update the offset for the next batch
             update_option('media_tracker_offset', $offset + $limit);
@@ -553,7 +556,23 @@ class Duplicate_Images {
         // Strictly use existing database hashes.
         // Never generate new hashes here. Hash generation is now exclusively handled
         // by the manual scan process (reset_duplicate_hashes_via_ajax -> batch process).
-        return $this->get_duplicate_hashes_by_sql();
+
+        // Check transient cache first for better performance
+        $cached_hashes = get_transient('media_tracker_duplicate_hashes_cache');
+        if (false !== $cached_hashes) {
+            return $cached_hashes;
+        }
+
+        $hashes = $this->get_duplicate_hashes_by_sql();
+
+        // Cache for 1 hour (3600 seconds) to improve performance
+        // Cache will be automatically cleared when:
+        // - New images are scanned
+        // - Duplicate images are deleted
+        // - Manual rescan is triggered
+        set_transient('media_tracker_duplicate_hashes_cache', $hashes, HOUR_IN_SECONDS);
+
+        return $hashes;
     }
 
     /**
@@ -588,6 +607,9 @@ class Duplicate_Images {
 
         // Clear dashboard stats cache so overview updates
         delete_transient( 'media_tracker_dashboard_stats_v8' );
+
+        // Clear duplicate hashes cache since we're rescanning
+        delete_transient( 'media_tracker_duplicate_hashes_cache' );
 
         // Save total to scan for progress bar
         $total_to_scan = $this->count_unhashed_attachments();
@@ -679,6 +701,9 @@ class Duplicate_Images {
         if ( $deleted > 0 ) {
             // Clear dashboard stats cache so overview updates
             delete_transient( 'media_tracker_dashboard_stats_v8' );
+
+            // Clear duplicate hashes cache to reflect deletions
+            delete_transient( 'media_tracker_duplicate_hashes_cache' );
 
             wp_send_json_success( array(
                 'message' => sprintf(

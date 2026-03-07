@@ -5,7 +5,7 @@ Tags: tracker, unused, media cleaner, duplicate, optimizer
 Requires at least: 5.9
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.3.4
+Stable tag: 1.3.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://thebitcraft.com/
@@ -81,6 +81,14 @@ A. Found a bug? Please let us know by posting on the support section of this plu
 5. Documentations
 
 == Changelog ==
+= 1.3.5 [07/03/2026] =
+* Fixed: Screenshot option CSS issue fixed
+* Fixed: Unused media CSS issue fixed
+* Fixed: Unused media screen option code script updated
+* Enhanced: Duplicate media screen option added
+* Enhanced: Duplicate media transient added for better performance
+* Fixed: Tab overview and duplicate media transient issue resolved
+
 = 1.3.4 [16/02/2026] =
 * Fixed: Media usage count bug fixed
 * Fixed: CSS issue fixed

@@ -37,9 +37,7 @@ class PluginMeta
     public function remove_admin_notices_on_plugin_pages()
     {
         $current_screen = get_current_screen();
-        if ($current_screen && in_array($current_screen->id, [
-            'media_page_media-tracker',
-        ])) {
+        if ( $current_screen && strpos( $current_screen->id, 'media-tracker' ) !== false ) {
             remove_all_actions('admin_notices');
             remove_all_actions('all_admin_notices');
             remove_all_actions('user_admin_notices');

@@ -21,6 +21,14 @@ class Assets {
      */
     function register_admin_assets() {
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_script' ) );
+        add_action( 'wp_ajax_mt_save_feedback', array( '\Media_Tracker\Installer', 'save_feedback' ) );
+        add_action( 'wp_ajax_unused_media_save_screen_options', array( $this, 'unused_media_handle_screen_options_save' ) );
+        add_action( 'wp_ajax_duplicate_media_save_screen_options', array( $this, 'duplicate_media_handle_screen_options_save' ) );
+        add_action( 'current_screen', function( $screen ) {
+            if ( $screen && ( $screen->id === 'plugins' || $screen->id === 'plugins-network' ) ) {
+                \Media_Tracker\Installer::deactivate();
+            }
+        } );
     }
 
         /**
@@ -53,5 +61,97 @@ class Assets {
         }
 
         wp_localize_script( 'mt-admin-script', 'mediaTracker', $data );
+    }
+
+    /**
+     * Handle screen options save via AJAX
+     *
+     * @return void
+     */
+    public function unused_media_handle_screen_options_save() {
+        // Verify nonce
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'unused_media_screen_options' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'media-tracker' ) ) );
+        }
+
+        // Check user capabilities
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error(
+                array( 'message' => __( 'You do not have permission to perform this action.', 'media-tracker' ) )
+            );
+        }
+
+        // Get and validate per page value
+        if ( ! isset( $_POST['per_page'] ) ) {
+            wp_send_json_error( array( 'message' => __( 'Missing per page value.', 'media-tracker' ) ) );
+        }
+
+        $per_page = intval( $_POST['per_page'] );
+        if ( $per_page < 1 || $per_page > 999 ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid per page value. Must be between 1 and 999.', 'media-tracker' ) ) );
+        }
+
+        // Save to user meta
+        $user_id = get_current_user_id();
+        $current_value = get_user_meta( $user_id, 'unused_media_cleaner_per_page', true );
+        if ( $current_value == $per_page ) {
+            wp_send_json_success( array(
+                'message' => __( 'Settings saved successfully.', 'media-tracker' ),
+                'unchanged' => true
+            ) );
+        }
+
+        $updated = update_user_meta( $user_id, 'unused_media_cleaner_per_page', $per_page );
+        if ( $updated ) {
+            wp_send_json_success( array( 'message' => __( 'Settings saved successfully.', 'media-tracker' ) ) );
+        } else {
+            wp_send_json_error( array( 'message' => __( 'Failed to save settings.', 'media-tracker' ) ) );
+        }
+    }
+
+    /**
+     * Handle duplicate media screen options save via AJAX
+     *
+     * @return void
+     */
+    public function duplicate_media_handle_screen_options_save() {
+        // Verify nonce
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'duplicate_media_screen_options' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'media-tracker' ) ) );
+        }
+
+        // Check user capabilities
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error(
+                array( 'message' => __( 'You do not have permission to perform this action.', 'media-tracker' ) )
+            );
+        }
+
+        // Get and validate per page value
+        if ( ! isset( $_POST['per_page'] ) ) {
+            wp_send_json_error( array( 'message' => __( 'Missing per page value.', 'media-tracker' ) ) );
+        }
+
+        $per_page = intval( $_POST['per_page'] );
+        if ( $per_page < 1 || $per_page > 999 ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid per page value. Must be between 1 and 999.', 'media-tracker' ) ) );
+        }
+
+        // Save to user meta
+        $user_id = get_current_user_id();
+        $current_value = get_user_meta( $user_id, 'duplicate_media_per_page', true );
+        if ( $current_value == $per_page ) {
+            wp_send_json_success( array(
+                'message' => __( 'Settings saved successfully.', 'media-tracker' ),
+                'unchanged' => true
+            ) );
+        }
+
+        $updated = update_user_meta( $user_id, 'duplicate_media_per_page', $per_page );
+        if ( $updated ) {
+            wp_send_json_success( array( 'message' => __( 'Settings saved successfully.', 'media-tracker' ) ) );
+        } else {
+            wp_send_json_error( array( 'message' => __( 'Failed to save settings.', 'media-tracker' ) ) );
+        }
     }
 }

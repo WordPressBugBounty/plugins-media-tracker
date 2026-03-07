@@ -151,18 +151,18 @@
         connectionModalCancel.addEventListener('click', closeConnectionModal);
     }
 
-    if (connectionModalTest) {
-        connectionModalTest.addEventListener('click', function() {
-            alert('Test connection successful (demo).');
-        });
-    }
+    // if (connectionModalTest) {
+    //     connectionModalTest.addEventListener('click', function() {
+    //         alert('Test connection successful (demo).');
+    //     });
+    // }
 
-    if (connectionModalSave) {
-        connectionModalSave.addEventListener('click', function() {
-            alert('Connection saved (demo).');
-            closeConnectionModal();
-        });
-    }
+    // if (connectionModalSave) {
+    //     connectionModalSave.addEventListener('click', function() {
+    //         alert('Connection saved (demo).');
+    //         closeConnectionModal();
+    //     });
+    // }
 
     // Duplicate Media Management
     $(function() {

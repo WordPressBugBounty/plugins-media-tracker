@@ -4,7 +4,7 @@
  * Description: Media Tracker is a WordPress plugin to find and remove unused media files, manage duplicates, and optimize your media library for better performance.
  * Author: TheBitCraft
  * Author URI: https://thebitcraft.com/
- * Version: 1.3.4
+ * Version: 1.3.5
  * Requires PHP: 7.4
  * Requires at least: 5.9
  * Tested up to: 6.9
@@ -27,7 +27,7 @@ final class Media_Tracker {
      *
      * @var string
      */
-    const version = '1.3.4';
+    const version = '1.3.5';
 
     /**
      * Class constructor
@@ -37,12 +37,6 @@ final class Media_Tracker {
         register_activation_hook( __FILE__, array( $this, 'activate' ) );
         register_deactivation_hook( __FILE__, array( '\Media_Tracker\Installer', 'clear_cron_jobs' ) );
         add_action( 'plugins_loaded', array( $this, 'init_plugin' ) );
-        add_action( 'wp_ajax_mt_save_feedback', array( '\Media_Tracker\Installer', 'save_feedback' ) );
-        add_action( 'current_screen', function( $screen ) {
-            if ( $screen && ( $screen->id === 'plugins' || $screen->id === 'plugins-network' ) ) {
-                \Media_Tracker\Installer::deactivate();
-            }
-        } );
     }
 
     /**
