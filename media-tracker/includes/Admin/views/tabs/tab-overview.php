@@ -162,7 +162,7 @@ if ( class_exists( '\Media_Tracker\Admin\Media_Usage' ) ) {
 
 	<div class="card">
 		<h3 style="display: flex; align-items: center; gap: 8px;">
-			<i class="dashicons dashicons-admin-media" style="color: #6366f1;"></i>
+			<i class="dashicons dashicons-admin-media" style="color: #3858e9;"></i>
 			<?php esc_html_e( 'Total Media', 'media-tracker' ); ?>
 		</h3>
 		<span class="value">
@@ -247,7 +247,7 @@ if ( class_exists( '\Media_Tracker\Admin\Media_Usage' ) ) {
 			<?php if ( ! empty( $media_tracker_mime_types ) ) : ?>
 				<?php foreach ( $media_tracker_mime_types as $media_tracker_mime ) : ?>
 					<div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8fafc; border-radius: 8px;">
-						<i class="dashicons dashicons-media-default" style="color: #6366f1; width: 20px; text-align: center;"></i>
+						<i class="dashicons dashicons-media-default" style="color: #3858e9; width: 20px; text-align: center;"></i>
 						<div style="flex: 1;">
 							<div style="font-size: 14px; font-weight: 500;">
 								<?php echo esc_html( str_replace( 'image/', '', $media_tracker_mime->post_mime_type ) ); ?>

@@ -278,7 +278,13 @@
                         var pct = data.percentage;
 
                         progressBar.css('width', pct + '%');
-                        status.text('Scan status: Scanning... (' + pct + '%)');
+
+                        // Enhanced status message with ETA
+                        var statusText = 'Scan status: Scanning... (' + pct + '%) - ' + data.processed + ' / ' + data.total + ' images';
+                        if (data.eta && data.eta !== 'Complete!') {
+                            statusText += ' <span style="color:#666;">(ETA: ' + data.eta + ')</span>';
+                        }
+                        status.html(statusText);
 
                         if (data.completed) {
                             status.html('✅ <strong>Scan Complete!</strong> (100%)');
@@ -291,7 +297,7 @@
                                 location.reload();
                             }, 1000);
                         } else {
-                            // Continue processing next batch
+                            // Continue processing next batch immediately (no delay for faster scanning)
                             processBatch();
                         }
                     } else {

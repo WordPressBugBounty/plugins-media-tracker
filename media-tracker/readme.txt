@@ -1,11 +1,10 @@
 === Media Tracker ===
-
 Contributors: thebitcraft, rejuancse
 Tags: tracker, unused, media cleaner, duplicate, optimizer
 Requires at least: 5.9
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.5
+Stable tag: 1.3.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://thebitcraft.com/
@@ -81,6 +80,10 @@ A. Found a bug? Please let us know by posting on the support section of this plu
 5. Documentations
 
 == Changelog ==
+= 1.3.6 [30/05/2026] =
+* Fixed: Unused media list bug fixed
+* Fixed: Duplicate media list bug fixed
+
 = 1.3.5 [07/03/2026] =
 * Fixed: Screenshot option CSS issue fixed
 * Fixed: Unused media CSS issue fixed

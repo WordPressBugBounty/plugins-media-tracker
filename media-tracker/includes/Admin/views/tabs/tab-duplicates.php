@@ -166,7 +166,7 @@ if ( class_exists( '\Media_Tracker\Admin\Duplicate_Images' ) ) {
         echo '<p class="mt-dup-scan-status" style="margin: 0 0 8px;">Scan status: Ready to scan...</p>';
 
         echo '<div id="mt-dup-progress" style="position: relative; height: 15px; background: #f0f0f0; border: 1px solid #ccd0d4; border-radius: 4px; overflow: hidden;">';
-            echo '<div class="mt-dup-progress-bar" style="height: 100%; width: 0; background: #6366f1; background-size: 200% 100%; transition: width 0.3s ease-in-out; will-change: width;"></div>';
+            echo '<div class="mt-dup-progress-bar" style="height: 100%; width: 0; background: #3858e9; background-size: 200% 100%; transition: width 0.3s ease-in-out; will-change: width;"></div>';
             echo '<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent); background-size: 20px 20px;"></div>';
         echo '</div>';
     echo '</div>';

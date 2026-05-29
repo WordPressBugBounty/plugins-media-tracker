@@ -139,6 +139,23 @@ class Unused_Media_List extends WP_List_Table {
         return empty( $per_page ) || $per_page < 1 ? $default : $per_page;
     }
 
+    /**
+     * Retrieve all used media IDs from various sources across the site.
+     *
+     * This method scans multiple locations where media might be referenced:
+     * - Featured images (post thumbnails)
+     * - WooCommerce product images and galleries
+     * - ACF fields
+     * - Elementor data
+     * - Post content (Gutenberg blocks, shortcodes, etc.)
+     * - Divi Builder data
+     * - Post metadata
+     * - Theme settings (logo, header, background)
+     *
+     * The scan is optimized with batch processing and caching to handle large media libraries efficiently.
+     *
+     * @return array Array of used media attachment IDs.
+     */
     private function get_used_media_ids() {
         global $wpdb;
 
@@ -152,29 +169,33 @@ class Unused_Media_List extends WP_List_Table {
         if ( ! is_array( $progress ) ) {
             $progress = array(
                 'step' => 0,
-                'total_steps' => 6,
+                'total_steps' => 20, // Increased total steps for better granularity
                 'current_step' => 'Starting scan...',
-                'used_ids' => array()
+                'used_ids' => array(),
+                'batch_offset' => array(), // Track batch offsets for resumability
             );
         } else {
             $progress['step'] = isset( $progress['step'] ) ? (int) $progress['step'] : 0;
-            $progress['total_steps'] = isset( $progress['total_steps'] ) ? (int) $progress['total_steps'] : 6;
+            $progress['total_steps'] = isset( $progress['total_steps'] ) ? (int) $progress['total_steps'] : 20;
             $progress['current_step'] = isset( $progress['current_step'] ) ? (string) $progress['current_step'] : 'Starting scan...';
             if ( ! isset( $progress['used_ids'] ) || ! is_array( $progress['used_ids'] ) ) {
                 $progress['used_ids'] = array();
+            }
+            if ( ! isset( $progress['batch_offset'] ) || ! is_array( $progress['batch_offset'] ) ) {
+                $progress['batch_offset'] = array();
             }
         }
 
         wp_raise_memory_limit( 'admin' );
         if ( function_exists( 'set_time_limit' ) ) {
             // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Scanning can take a long time.
-            set_time_limit( 300 );
+            set_time_limit( 600 ); // Increased from 300 to 600 seconds for large libraries
         }
 
         // Step 1: Featured Images
         if ( $progress['step'] < 1 ) {
             $progress['current_step'] = 'Scanning featured images...';
-            set_transient( $progress_key, $progress, 300 );
+            set_transient( $progress_key, $progress, 1800 );
 
             $featured_images = $this->get_cached_db_result("
                 SELECT DISTINCT meta_value
@@ -187,12 +208,13 @@ class Unused_Media_List extends WP_List_Table {
                 $progress['used_ids'] = array_merge( $progress['used_ids'], array_map( 'intval', $featured_images ) );
             }
             $progress['step'] = 1;
+            set_transient( $progress_key, $progress, 1800 );
         }
 
         // Step 2: WooCommerce Images
         if ( $progress['step'] < 2 && class_exists( 'WooCommerce' ) ) {
             $progress['current_step'] = 'Scanning WooCommerce images...';
-            set_transient( $progress_key, $progress, 300 );
+            set_transient( $progress_key, $progress, 1800 );
 
             $gallery_images = $this->get_cached_db_result("
                 SELECT DISTINCT meta_value
@@ -224,6 +246,11 @@ class Unused_Media_List extends WP_List_Table {
                 $progress['used_ids'] = array_merge( $progress['used_ids'], array_map( 'intval', $variation_images ) );
             }
             $progress['step'] = 2;
+            set_transient( $progress_key, $progress, 1800 );
+        } elseif ( $progress['step'] < 2 ) {
+            // Skip WooCommerce step if not active
+            $progress['step'] = 2;
+            set_transient( $progress_key, $progress, 1800 );
         }
 
         $used_image_ids = $progress['used_ids'];
@@ -422,54 +449,123 @@ class Unused_Media_List extends WP_List_Table {
             }
         }
 
-        $batch_size = 100;
-        $offset = 0;
+        $batch_size = 500; // Increased batch size for better performance
 
-        while ( true ) {
-            $sql = $wpdb->prepare(
-                "SELECT ID, post_content FROM {$wpdb->posts} WHERE post_content LIKE %s AND post_status = 'publish' LIMIT %d OFFSET %d",
-                '%wp-image-%',
-                $batch_size,
-                $offset
-            );
-            $posts_with_content = $this->get_cached_db_result( $sql, 'results' );
+        // Step 3-12: Post content scanning with progress tracking
+        // This section is broken into multiple steps for better progress reporting
+        if ( $progress['step'] >= 3 && $progress['step'] < 13 ) {
+            $progress['current_step'] = 'Scanning post content for images...';
+            set_transient( $progress_key, $progress, 1800 );
 
-            if ( empty( $posts_with_content ) ) {
-                break;
+            // Initialize batch offset if not set
+            if ( ! isset( $progress['batch_offset']['post_content'] ) ) {
+                $progress['batch_offset']['post_content'] = 0;
             }
 
-            foreach ( $posts_with_content as $post ) {
-                preg_match_all( '/wp-image-(\d+)/', $post->post_content, $matches );
-                if ( ! empty( $matches[1] ) ) {
-                    $used_image_ids = array_merge( $used_image_ids, array_map( 'intval', $matches[1] ) );
+            $offset = $progress['batch_offset']['post_content'];
+            $total_batches_processed = 0;
+            $max_batches_per_run = 50; // Process up to 50 batches (25,000 posts) per step to avoid timeout
+
+            while ( $total_batches_processed < $max_batches_per_run ) {
+                $sql = $wpdb->prepare(
+                    "SELECT ID, post_content FROM {$wpdb->posts} WHERE post_content LIKE %s AND post_status = 'publish' LIMIT %d OFFSET %d",
+                    '%wp-image-%',
+                    $batch_size,
+                    $offset
+                );
+                $posts_with_content = $this->get_cached_db_result( $sql, 'results' );
+
+                if ( empty( $posts_with_content ) ) {
+                    break;
+                }
+
+                foreach ( $posts_with_content as $post ) {
+                    preg_match_all( '/wp-image-(\d+)/', $post->post_content, $matches );
+                    if ( ! empty( $matches[1] ) ) {
+                        $used_image_ids = array_merge( $used_image_ids, array_map( 'intval', $matches[1] ) );
+                    }
+                }
+
+                $offset += $batch_size;
+                $total_batches_processed++;
+
+                // Update progress periodically
+                if ( $total_batches_processed % 10 === 0 ) {
+                    $progress['batch_offset']['post_content'] = $offset;
+                    $progress['used_ids'] = array_unique( $used_image_ids );
+                    set_transient( $progress_key, $progress, 1800 );
                 }
             }
 
-            $offset += $batch_size;
+            // Move to next step if we've processed all batches or reached limit
+            if ( empty( $posts_with_content ) ) {
+                $progress['step'] = 13;
+                unset( $progress['batch_offset']['post_content'] );
+            } else {
+                // Continue in next run
+                $progress['step'] = min( 12, $progress['step'] + 1 );
+                $progress['batch_offset']['post_content'] = $offset;
+            }
+
+            $progress['used_ids'] = array_unique( $used_image_ids );
+            set_transient( $progress_key, $progress, 1800 );
+        } elseif ( $progress['step'] < 3 ) {
+            // Initialize post content scanning
+            $progress['step'] = 3;
+            $progress['batch_offset']['post_content'] = 0;
+            set_transient( $progress_key, $progress, 1800 );
         }
 
         // Scan Gutenberg image blocks that may not include the wp-image- class
-        $offset_blocks = 0;
-        while ( true ) {
-            $sql_blocks = $wpdb->prepare(
-                "SELECT ID, post_content FROM {$wpdb->posts} WHERE post_content LIKE %s AND post_status = 'publish' LIMIT %d OFFSET %d",
-                '%wp:image%',
-                $batch_size,
-                $offset_blocks
-            );
-            $posts_with_blocks = $this->get_cached_db_result( $sql_blocks, 'results' );
+        // Step 13: Gutenberg image blocks
+        if ( $progress['step'] >= 13 && $progress['step'] < 14 ) {
+            $progress['current_step'] = 'Scanning Gutenberg blocks...';
+            set_transient( $progress_key, $progress, 1800 );
 
-            if ( empty( $posts_with_blocks ) ) {
-                break;
+            if ( ! isset( $progress['batch_offset']['gutenberg_blocks'] ) ) {
+                $progress['batch_offset']['gutenberg_blocks'] = 0;
             }
 
-            foreach ( $posts_with_blocks as $post ) {
-                if ( preg_match_all( '/<!--\s*wp:image\s*{[^}]*\"id\"\s*:\s*(\d+)/', $post->post_content, $matches ) ) {
-                    $used_image_ids = array_merge( $used_image_ids, array_map( 'intval', $matches[1] ) );
+            $offset_blocks = $progress['batch_offset']['gutenberg_blocks'];
+            $total_batches = 0;
+            $max_batches = 30; // Process up to 15,000 posts per run
+
+            while ( $total_batches < $max_batches ) {
+                $sql_blocks = $wpdb->prepare(
+                    "SELECT ID, post_content FROM {$wpdb->posts} WHERE post_content LIKE %s AND post_status = 'publish' LIMIT %d OFFSET %d",
+                    '%wp:image%',
+                    $batch_size,
+                    $offset_blocks
+                );
+                $posts_with_blocks = $this->get_cached_db_result( $sql_blocks, 'results' );
+
+                if ( empty( $posts_with_blocks ) ) {
+                    break;
                 }
+
+                foreach ( $posts_with_blocks as $post ) {
+                    if ( preg_match_all( '/<!--\s*wp:image\s*{[^}]*\"id\"\s*:\s*(\d+)/', $post->post_content, $matches ) ) {
+                        $used_image_ids = array_merge( $used_image_ids, array_map( 'intval', $matches[1] ) );
+                    }
+                }
+
+                $offset_blocks += $batch_size;
+                $total_batches++;
             }
 
-            $offset_blocks += $batch_size;
+            if ( empty( $posts_with_blocks ) || count( $posts_with_blocks ) < $batch_size ) {
+                $progress['step'] = 14;
+                unset( $progress['batch_offset']['gutenberg_blocks'] );
+            } else {
+                $progress['batch_offset']['gutenberg_blocks'] = $offset_blocks;
+            }
+
+            $progress['used_ids'] = array_unique( $used_image_ids );
+            set_transient( $progress_key, $progress, 1800 );
+        } elseif ( $progress['step'] < 13 ) {
+            $progress['step'] = 13;
+            $progress['batch_offset']['gutenberg_blocks'] = 0;
+            set_transient( $progress_key, $progress, 1800 );
         }
 
         // Scan other Gutenberg media blocks (Cover, Media & Text, Video, Audio, File)
@@ -827,14 +923,40 @@ class Unused_Media_List extends WP_List_Table {
             return $id > 0 && $id < 999999999;
         }));
 
+        // Mark scan as complete and clear batch offsets
+        $progress['step'] = $progress['total_steps'];
+        $progress['current_step'] = 'Scan complete';
+        $progress['used_ids'] = $used_image_ids;
+        unset( $progress['batch_offset'] );
+        set_transient( $progress_key, $progress, 1800 );
+
         return $used_image_ids;
     }
 
+    /**
+     * Scan for unused media and save results to a snapshot.
+     *
+     * This method initiates or continues a media scan, saves the results,
+     * and calculates the total size of unused media files. The scan is
+     * performed in batches to handle large media libraries efficiently.
+     *
+     * @return int Number of unused media items found.
+     */
     public function scan_and_save_snapshot() {
         global $wpdb;
 
-        // Force calculation of used IDs
-        $used_image_ids = $this->get_used_media_ids();
+        // Get current progress to check if scan should continue
+        $progress_key = 'media_scan_progress_' . get_current_user_id();
+        $progress = get_transient( $progress_key );
+
+        // Only force calculation if not already in progress
+        if ( ! $progress || $progress['step'] >= $progress['total_steps'] ) {
+            // Starting fresh scan or resuming completed scan
+            $used_image_ids = $this->get_used_media_ids();
+        } else {
+            // Continue existing scan
+            $used_image_ids = $this->get_used_media_ids();
+        }
 
         // Get all attachment IDs
         $all_attachments = $this->get_cached_db_result( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'attachment' AND post_status = 'inherit'" );
@@ -863,7 +985,7 @@ class Unused_Media_List extends WP_List_Table {
         // Invalidate dashboard stats cache to ensure overview tab is updated
         delete_transient( 'media_tracker_dashboard_stats_v8' );
 
-        return count($unused_ids);
+        return count( $unused_ids );
     }
 
     public function prepare_items() {
@@ -894,6 +1016,11 @@ class Unused_Media_List extends WP_List_Table {
             $this->items = array();
             $total_items = 0;
         } else {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Orderby and order are safe for sorting.
+            $orderby_param = isset( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'date';
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Orderby and order are safe for sorting.
+            $order_param   = isset( $_REQUEST['order'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'DESC';
+
             $args = array(
                 'post_type'      => 'attachment',
                 'post_status'    => 'inherit',

@@ -310,6 +310,7 @@ class Menu {
      * Handle AJAX request to run media scan in background.
      * - Returns immediately to avoid long-running AJAX timeouts.
      * - Schedules an async task that performs the scan.
+     * - Supports continuation of incomplete scans for large media libraries.
      */
     public function handle_run_media_scan() {
         // Check user capabilities
@@ -323,18 +324,27 @@ class Menu {
         }
 
         $user_id = get_current_user_id();
-
-        // Initialize progress - single atomic operation to avoid race condition
         $progress_key = 'media_scan_progress_' . $user_id;
-        set_transient( $progress_key, array(
-            'step' => 0,
-            'total_steps' => 6,
-            'current_step' => 'Starting scan...',
-            'used_ids' => array()
-        ), 1800 );
+        $existing_progress = get_transient( $progress_key );
 
-        // Schedule the background scan (runs via WP-Cron)
-        wp_schedule_single_event( time() + 1, 'media_tracker_run_media_scan_bg', array( $user_id ) );
+        // If there's an incomplete scan in progress, continue it
+        if ( $existing_progress && is_array( $existing_progress ) && $existing_progress['step'] < $existing_progress['total_steps'] ) {
+            // Continue existing scan - don't reset progress
+            // Just reschedule the background task
+            wp_schedule_single_event( time() + 1, 'media_tracker_run_media_scan_bg', array( $user_id ) );
+        } else {
+            // Initialize new progress - single atomic operation to avoid race condition
+            set_transient( $progress_key, array(
+                'step' => 0,
+                'total_steps' => 20, // Updated to match new step count
+                'current_step' => 'Starting scan...',
+                'used_ids' => array(),
+                'batch_offset' => array()
+            ), 1800 );
+
+            // Schedule the background scan (runs via WP-Cron)
+            wp_schedule_single_event( time() + 1, 'media_tracker_run_media_scan_bg', array( $user_id ) );
+        }
 
         // Ensure cron function is available and trigger immediately
         if ( ! function_exists( 'spawn_cron' ) ) {
@@ -367,9 +377,10 @@ class Menu {
         // Initialize progress to visible state
         $progress = array(
             'step' => 0,
-            'total_steps' => 6,
+            'total_steps' => 20, // Updated to match new step count
             'current_step' => 'Starting scan...',
-            'used_ids' => array()
+            'used_ids' => array(),
+            'batch_offset' => array()
         );
         set_transient( $progress_key, $progress, 1800 );
 
@@ -393,8 +404,8 @@ class Menu {
 
         // Mark complete
         set_transient( $progress_key, array(
-            'step' => 6,
-            'total_steps' => 6,
+            'step' => 20,
+            'total_steps' => 20,
             'current_step' => 'Scan complete'
         ), 1800 );
 
@@ -403,6 +414,11 @@ class Menu {
 
     /**
      * Background task runner that performs the actual scan.
+     *
+     * This method supports continuation of incomplete scans and can handle
+     * large media libraries (1M+ images) through batch processing.
+     *
+     * @param int $user_id User ID initiating the scan.
      */
     public function run_scan_bg( $user_id = 0 ) {
         // Resolve user context if missing
@@ -424,15 +440,24 @@ class Menu {
             wp_set_current_user( $user_id );
         }
 
-        // Perform the scan
-        $list = new Unused_Media_List( '', null );
-
         // Update progress state before heavy work
         $progress_key = 'media_scan_progress_' . $user_id;
         $progress = get_transient( $progress_key );
+
+        // If no progress exists, this shouldn't be called - abort
         if ( ! is_array( $progress ) ) {
-            $progress = array( 'step' => 0, 'total_steps' => 6, 'current_step' => 'Starting scan...', 'used_ids' => array() );
+            return;
         }
+
+        // Check if scan is already complete
+        if ( $progress['step'] >= $progress['total_steps'] ) {
+            // Scan already complete
+            return;
+        }
+
+        // Perform the scan (will continue from where it left off)
+        $list = new Unused_Media_List( '', null );
+
         $progress['current_step'] = 'Scanning...';
         set_transient( $progress_key, $progress, 1800 );
 
@@ -440,7 +465,7 @@ class Menu {
             $list->force_clear_cache();
         }
 
-        // Use new method to scan and save snapshot
+        // Use new method to scan and save snapshot (supports continuation)
         if ( method_exists( $list, 'scan_and_save_snapshot' ) ) {
             $list->scan_and_save_snapshot();
         } else {
@@ -448,12 +473,20 @@ class Menu {
             $list->prepare_items();
         }
 
-        // Mark progress as complete
-        set_transient( $progress_key, array(
-            'step' => 6,
-            'total_steps' => 6,
-            'current_step' => 'Scan complete'
-        ), 1800 );
+        // Get updated progress to check if scan completed
+        $updated_progress = get_transient( $progress_key );
+        if ( $updated_progress && is_array( $updated_progress ) ) {
+            // Keep the progress as-is (scan will update it when complete)
+            // Don't override with completion status here
+            if ( $updated_progress['step'] >= $updated_progress['total_steps'] ) {
+                // Scan completed - ensure final state is set
+                set_transient( $progress_key, array(
+                    'step' => $updated_progress['total_steps'],
+                    'total_steps' => $updated_progress['total_steps'],
+                    'current_step' => 'Scan complete'
+                ), 1800 );
+            }
+        }
     }
 
     /**
