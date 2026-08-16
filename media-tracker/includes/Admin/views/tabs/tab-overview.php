@@ -102,7 +102,7 @@ if ( class_exists( '\Media_Tracker\Admin\Media_Usage' ) ) {
 		<span class="value">
 			<?php
 			/* translators: %d: Number of used media files. */
-			printf( esc_html__( '%d Files', 'media-tracker' ), intval( $media_tracker_used_count ) );
+			printf( esc_html__( '%d Used Files', 'media-tracker' ), intval( $media_tracker_used_count ) );
 			?>
 		</span>
 
@@ -126,7 +126,7 @@ if ( class_exists( '\Media_Tracker\Admin\Media_Usage' ) ) {
 		<span class="value">
 			<?php
 			/* translators: %d: Number of unused files. */
-			printf( esc_html__( '%d Files', 'media-tracker' ), intval( $media_tracker_unused_count ) );
+			printf( esc_html__( '%d Unused Files', 'media-tracker' ), intval( $media_tracker_unused_count ) );
 			?>
 		</span>
 
@@ -151,7 +151,7 @@ if ( class_exists( '\Media_Tracker\Admin\Media_Usage' ) ) {
 				echo '<a href="' . esc_url( admin_url( 'upload.php?page=media-tracker&tab=duplicates' ) ) . '" style="font-size:14px; text-decoration:none;">' . esc_html__( 'Scan Required', 'media-tracker' ) . '</a>';
 			} else {
 				/* translators: %d: Number of duplicate files. */
-				printf( esc_html__( '%d Files', 'media-tracker' ), intval( $media_tracker_duplicate_count ) );
+				printf( esc_html__( '%d Duplicate Files', 'media-tracker' ), intval( $media_tracker_duplicate_count ) );
 			}
 			?>
 		</span>
@@ -168,7 +168,7 @@ if ( class_exists( '\Media_Tracker\Admin\Media_Usage' ) ) {
 		<span class="value">
 			<?php
 			/* translators: %d: Total number of media files. */
-			printf( esc_html__( '%d Files', 'media-tracker' ), intval( $media_tracker_total_attachments ) );
+			printf( esc_html__( '%d Total Files', 'media-tracker' ), intval( $media_tracker_total_attachments ) );
 			?>
 		</span>
 		<span style="color: #64748b; font-size: 12px;">

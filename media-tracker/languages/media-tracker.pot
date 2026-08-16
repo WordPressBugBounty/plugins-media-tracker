@@ -1,15 +1,15 @@
-# Copyright (C) 2026 TheBitCraft
+# Copyright (C) 2026 Rejuan Ahamed
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Media Tracker 1.3.5\n"
+"Project-Id-Version: Media Tracker 1.3.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/media-tracker\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-07T10:56:13+00:00\n"
+"POT-Creation-Date: 2026-08-16T14:57:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: media-tracker\n"
@@ -29,63 +29,58 @@ msgstr ""
 
 #. Author of the plugin
 #: media-tracker.php
-msgid "TheBitCraft"
-msgstr ""
-
-#. Author URI of the plugin
-#: media-tracker.php
-msgid "https://thebitcraft.com/"
-msgstr ""
-
-#: includes/Admin/Duplicate_Images.php:44
-msgid "Duplicates"
-msgstr ""
-
-#: includes/Admin/Duplicate_Images.php:46
-msgid "Duplicate images filter"
+msgid "Rejuan Ahamed"
 msgstr ""
 
 #: includes/Admin/Duplicate_Images.php:47
-msgid "All Media"
+msgid "Duplicates"
 msgstr ""
 
 #: includes/Admin/Duplicate_Images.php:49
+msgid "Duplicate images filter"
+msgstr ""
+
+#: includes/Admin/Duplicate_Images.php:50
+msgid "All Media"
+msgstr ""
+
+#: includes/Admin/Duplicate_Images.php:52
 msgid "Show Duplicate Images"
 msgstr ""
 
-#: includes/Admin/Duplicate_Images.php:54
+#: includes/Admin/Duplicate_Images.php:57
 msgid "Re-scan"
 msgstr ""
 
-#: includes/Admin/Duplicate_Images.php:380
-#: includes/Admin/Duplicate_Images.php:584
-#: includes/Admin/Duplicate_Images.php:642
-#: includes/Admin/Duplicate_Images.php:676
+#: includes/Admin/Duplicate_Images.php:457
+#: includes/Admin/Duplicate_Images.php:673
+#: includes/Admin/Duplicate_Images.php:731
+#: includes/Admin/Duplicate_Images.php:787
 #: includes/Admin/Menu.php:257
 msgid "Unauthorized"
 msgstr ""
 
 #. translators: 1: number of hashes reset, 2: number of images being rescanned
-#: includes/Admin/Duplicate_Images.php:627
+#: includes/Admin/Duplicate_Images.php:716
 #, php-format
 msgid "Reset %1$d hashes. Re-scanning %2$d images..."
 msgstr ""
 
-#: includes/Admin/Duplicate_Images.php:682
+#: includes/Admin/Duplicate_Images.php:793
 msgid "No images selected."
 msgstr ""
 
 #. translators: %d: number of deleted images
-#: includes/Admin/Duplicate_Images.php:711
+#: includes/Admin/Duplicate_Images.php:822
 #, php-format
 msgid "Deleted %d duplicate images."
 msgstr ""
 
-#: includes/Admin/Duplicate_Images.php:717
+#: includes/Admin/Duplicate_Images.php:828
 msgid "No images were deleted."
 msgstr ""
 
-#: includes/Admin/Duplicate_Images.php:752
+#: includes/Admin/Duplicate_Images.php:863
 msgid "items"
 msgstr ""
 
@@ -252,40 +247,40 @@ msgid "Cache cleared successfully."
 msgstr ""
 
 #: includes/Admin/Menu.php:276
-#: includes/Admin/Menu.php:317
-#: includes/Admin/Menu.php:356
-#: includes/Admin/Menu.php:464
-#: includes/Admin/Menu.php:486
-#: includes/Admin/Menu.php:518
+#: includes/Admin/Menu.php:318
+#: includes/Admin/Menu.php:366
+#: includes/Admin/Menu.php:497
+#: includes/Admin/Menu.php:519
+#: includes/Admin/Menu.php:551
 msgid "Unauthorized: You do not have permission to perform this action."
 msgstr ""
 
 #: includes/Admin/Menu.php:281
-#: includes/Admin/Menu.php:469
-#: includes/Admin/Menu.php:491
-#: includes/Admin/Menu.php:523
+#: includes/Admin/Menu.php:502
+#: includes/Admin/Menu.php:524
+#: includes/Admin/Menu.php:556
 msgid "Security check failed."
 msgstr ""
 
-#: includes/Admin/Menu.php:322
-#: includes/Admin/Menu.php:361
+#: includes/Admin/Menu.php:323
+#: includes/Admin/Menu.php:371
 msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
-#: includes/Admin/Menu.php:347
+#: includes/Admin/Menu.php:357
 msgid "Scan started."
 msgstr ""
 
-#: includes/Admin/Menu.php:401
+#: includes/Admin/Menu.php:412
 msgid "Scan completed."
 msgstr ""
 
-#: includes/Admin/Menu.php:478
+#: includes/Admin/Menu.php:511
 msgid "Progress cleared."
 msgstr ""
 
 #. translators: %d: number of unused media found!
-#: includes/Admin/Menu.php:507
+#: includes/Admin/Menu.php:540
 #, php-format
 msgid "%d unused image found"
 msgid_plural "%d unused media found!"
@@ -293,14 +288,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of items deleted
-#: includes/Admin/Menu.php:552
+#: includes/Admin/Menu.php:585
 #, php-format
 msgid "Successfully deleted %d unused media item."
 msgid_plural "Successfully deleted %d unused media items."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Menu.php:560
+#: includes/Admin/Menu.php:593
 msgid "No unused media items found or failed to delete."
 msgstr ""
 
@@ -343,12 +338,12 @@ msgstr ""
 msgid "File name:"
 msgstr ""
 
-#: includes/Admin/Unused_Media_List.php:1055
+#: includes/Admin/Unused_Media_List.php:1378
 msgid "Delete permanently"
 msgstr ""
 
 #. translators: %d: number of deleted media files
-#: includes/Admin/Unused_Media_List.php:1080
+#: includes/Admin/Unused_Media_List.php:1403
 #, php-format
 msgid "%d media file(s) deleted successfully."
 msgstr ""
@@ -565,15 +560,9 @@ msgid "Media Usages Count"
 msgstr ""
 
 #. translators: %d: Number of used media files.
-#. translators: %d: Number of unused files.
-#. translators: %d: Number of duplicate files.
-#. translators: %d: Total number of media files.
 #: includes/Admin/views/tabs/tab-overview.php:105
-#: includes/Admin/views/tabs/tab-overview.php:129
-#: includes/Admin/views/tabs/tab-overview.php:154
-#: includes/Admin/views/tabs/tab-overview.php:171
 #, php-format
-msgid "%d Files"
+msgid "%d Used Files"
 msgstr ""
 
 #. translators: %s: Formatted file size (e.g. 1.5 MB).
@@ -584,6 +573,12 @@ msgstr ""
 
 #: includes/Admin/views/tabs/tab-overview.php:116
 msgid "Refresh"
+msgstr ""
+
+#. translators: %d: Number of unused files.
+#: includes/Admin/views/tabs/tab-overview.php:129
+#, php-format
+msgid "%d Unused Files"
 msgstr ""
 
 #. translators: %s: Formatted file size (e.g. 1.5 MB).
@@ -600,12 +595,24 @@ msgstr ""
 msgid "Scan Required"
 msgstr ""
 
+#. translators: %d: Number of duplicate files.
+#: includes/Admin/views/tabs/tab-overview.php:154
+#, php-format
+msgid "%d Duplicate Files"
+msgstr ""
+
 #: includes/Admin/views/tabs/tab-overview.php:159
 msgid "Based on file hash matching"
 msgstr ""
 
 #: includes/Admin/views/tabs/tab-overview.php:166
 msgid "Total Media"
+msgstr ""
+
+#. translators: %d: Total number of media files.
+#: includes/Admin/views/tabs/tab-overview.php:171
+#, php-format
+msgid "%d Total Files"
 msgstr ""
 
 #: includes/Admin/views/tabs/tab-overview.php:175

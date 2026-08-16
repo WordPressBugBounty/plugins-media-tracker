@@ -1,13 +1,12 @@
 === Media Tracker ===
-Contributors: thebitcraft, rejuancse
+Contributors: rejuancse
 Tags: tracker, unused, media cleaner, duplicate, optimizer
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.6
+Stable tag: 1.3.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Donate link: https://thebitcraft.com/
 
 Media Tracker is a WordPress plugin to find and remove unused media files, manage duplicates, and optimize your media library for better performance.
 
@@ -64,13 +63,13 @@ Go to Dashboard > Plugins > Add New, then upload media-tracker.zip file and clic
 == Frequently Asked Questions ==
 
 = Q. Where can I get support? =
-A. You can get support by posting on the support section of this plugin on the WordPress plugin directory, or via email at: hello@thebitcraft.com
+A. You can get support by posting on the support section of this plugin on the WordPress plugin directory, or via email at: rejuan.17bd@gmail.com
 
 = Q. Can I use my existing WordPress theme? =
 A. Sure, you can use your existing WordPress theme with Media Tracker.
 
 = Q. Where can I report a bug? =
-A. Found a bug? Please let us know by posting on the support section of this plugin on the WordPress plugin directory or directly via email at: hello@thebitcraft.com
+A. Found a bug? Please let us know by posting on the support section of this plugin on the WordPress plugin directory or directly via email at: rejuan.17bd@gmail.com
 
 == Screenshots ==
 1. Media Tracker Dashboard

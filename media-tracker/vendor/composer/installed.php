@@ -1,19 +1,19 @@
 <?php return array(
     'root' => array(
-        'name' => 'thebitcraft/media-tracker',
+        'name' => 'rejuancse/media-tracker',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '274607d53e2c30110379855a4fcfc42dd0045d97',
+        'reference' => '130e072ec4cd2e86eb7509d0212a8bfac0e98da4',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
-        'thebitcraft/media-tracker' => array(
+        'rejuancse/media-tracker' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '274607d53e2c30110379855a4fcfc42dd0045d97',
+            'reference' => '130e072ec4cd2e86eb7509d0212a8bfac0e98da4',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

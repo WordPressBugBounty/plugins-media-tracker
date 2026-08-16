@@ -83,6 +83,7 @@ gulp.task("styles", () => {
     .pipe(sourcemaps.init({}))
     .pipe(
       sass({
+        silenceDeprecations: ["legacy-js-api"],
         errLogToConsole: config.errLogToConsole,
         outputStyle: config.outputStyle,
         precision: config.precision,
@@ -122,6 +123,7 @@ gulp.task("stylesRTL", () => {
     .pipe(sourcemaps.init({}))
     .pipe(
       sass({
+        silenceDeprecations: ["legacy-js-api"],
         errLogToConsole: config.errLogToConsole,
         outputStyle: config.outputStyle,
         precision: config.precision,

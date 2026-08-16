@@ -532,6 +532,7 @@
 
     .page-subtitle {
         font-size: 13px;
+        font-weight: 400;
         color: #64748b;
         margin-top: 10px;
         margin-bottom: 0;
@@ -1752,5 +1753,5 @@
 }
 
 .screen-options-per-page.shake {
-    animation: shake 0.5s ease-in-out;
+    animation: shake 0.51s ease-in-out;
 }

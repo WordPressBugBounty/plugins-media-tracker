@@ -2,7 +2,7 @@
   "name": "media-tracker",
   "description": "Add favorite icons to posts. Users can save posts to their favorites list for easy access later.",
   "version": "1.0.0",
-  "author": "TheBitCraft",
+  "author": "Rejuan Ahamed",
   "license": "MIT",
   "scripts": {
     "start": "gulp",
@@ -37,6 +37,7 @@
     "gulp-sourcemaps": "^3.0.0",
     "gulp-uglify": "^3.0.2",
     "postcss-cssnext": "^3.1.0",
+    "sass-embedded": "^1.100.0",
     "webpack-stream": "^7.0.0",
     "yargs": "^17.6.2"
   },

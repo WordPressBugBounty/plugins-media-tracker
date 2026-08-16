@@ -98,6 +98,9 @@ class Unused_Media_List extends WP_List_Table {
                     ' . esc_html( $full_file_name ) . '
                 </p>';
 
+
+
+
                 // Append row actions
                 $output .= $this->row_actions( $actions );
                 return $output;
@@ -130,7 +133,6 @@ class Unused_Media_List extends WP_List_Table {
             'post_title'  => array( 'post_title', false ),
             'post_author' => array( 'post_author', false ),
             'post_date'   => array( 'post_date', false ),
-            'size'        => array( 'size', false ),
         );
     }
 
@@ -428,31 +430,8 @@ class Unused_Media_List extends WP_List_Table {
             }
         }
 
-        // Check Elementor Data
-        $elementor_meta_values = $this->get_cached_db_result("
-            SELECT meta_value
-            FROM {$wpdb->postmeta}
-            WHERE meta_key = '_elementor_data'
-            AND meta_value != ''
-        ");
-
-        if ( $elementor_meta_values ) {
-            foreach ( $elementor_meta_values as $meta_value ) {
-                $data = json_decode( $meta_value, true );
-                if ( is_array( $data ) ) {
-                    array_walk_recursive( $data, function( $item, $key ) use ( &$used_image_ids ) {
-                        if ( $key === 'id' && is_numeric( $item ) && $item > 0 ) {
-                            $used_image_ids[] = intval( $item );
-                        }
-                    });
-                }
-            }
-        }
-
         $batch_size = 500; // Increased batch size for better performance
 
-        // Step 3-12: Post content scanning with progress tracking
-        // This section is broken into multiple steps for better progress reporting
         if ( $progress['step'] >= 3 && $progress['step'] < 13 ) {
             $progress['current_step'] = 'Scanning post content for images...';
             set_transient( $progress_key, $progress, 1800 );
@@ -656,71 +635,109 @@ class Unused_Media_List extends WP_List_Table {
             $offset_gallery += $batch_size;
         }
 
-        // Elementor: scan all posts with _elementor_data in batches and extract image IDs more accurately
+        // Elementor: scan all posts with _elementor_data
         $el_offset = 0;
         while ( true ) {
             $sql_el = $wpdb->prepare(
-                "SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_elementor_data' LIMIT %d OFFSET %d",
+                "SELECT DISTINCT post_id FROM {$wpdb->postmeta}
+                WHERE meta_key = '_elementor_data'
+                LIMIT %d OFFSET %d",
                 $batch_size,
                 $el_offset
             );
-            $elementor_posts = $this->get_cached_db_result( $sql_el );
+            $elementor_post_ids = $this->get_cached_db_result( $sql_el );
 
-            if ( empty( $elementor_posts ) ) {
+            if ( empty( $elementor_post_ids ) ) {
                 break;
             }
 
-            foreach ( $elementor_posts as $post_id ) {
+            foreach ( $elementor_post_ids as $post_id ) {
                 $raw = get_post_meta( $post_id, '_elementor_data', true );
                 if ( empty( $raw ) ) {
                     continue;
                 }
+
+                // Compressed data handle
+                if ( substr( $raw, 0, 1 ) !== '[' && substr( $raw, 0, 1 ) !== '{' ) {
+                    $raw = base64_decode( $raw );
+                    if ( function_exists( 'gzinflate' ) ) {
+                        $raw = @gzinflate( $raw );
+                    }
+                }
+
                 $data = json_decode( $raw, true );
                 if ( ! is_array( $data ) ) {
                     continue;
                 }
 
-                $extract_ids = function( $node ) use ( &$used_image_ids, &$extract_ids ) {
-                    if ( is_array( $node ) ) {
-                        // Direct image-like object: { id: 123, url: "..." }
-                        if ( isset( $node['id'] ) && is_numeric( $node['id'] ) ) {
-                            $has_url = isset( $node['url'] ) && is_string( $node['url'] );
-                            $looks_like_image = isset( $node['size'] ) || isset( $node['source'] ) || isset( $node['image'] ) || isset( $node['image_size'] );
-                            if ( $has_url || $looks_like_image ) {
-                                $used_image_ids[] = intval( $node['id'] );
+                $extract_elementor_ids = function( $node ) use ( &$used_image_ids, &$extract_elementor_ids ) {
+                    if ( ! is_array( $node ) ) {
+                        return;
+                    }
+
+                    if ( isset( $node['id'] ) && is_numeric( $node['id'] ) && intval( $node['id'] ) > 0 ) {
+                        $looks_like_media = (
+                            array_key_exists( 'url', $node )      // url key
+                            || isset( $node['alt'] )               // image alt
+                            || isset( $node['source'] )            // background image source
+                            || isset( $node['image_size'] )        // image size setting
+                            || isset( $node['size'] )              // size setting
+                        );
+                        if ( $looks_like_media ) {
+                            $used_image_ids[] = intval( $node['id'] );
+                        }
+                    }
+
+                    // Gallery widget — ids array
+                    if ( isset( $node['ids'] ) ) {
+                        if ( is_array( $node['ids'] ) ) {
+                            foreach ( $node['ids'] as $id ) {
+                                if ( is_numeric( $id ) && $id > 0 ) {
+                                    $used_image_ids[] = intval( $id );
+                                }
+                            }
+                        } elseif ( is_string( $node['ids'] ) && ! empty( $node['ids'] ) ) {
+                            $ids = array_filter( array_map( 'intval', explode( ',', $node['ids'] ) ) );
+                            $used_image_ids = array_merge( $used_image_ids, $ids );
+                        }
+                    }
+
+                    // Elementor settings - background image
+                    if ( isset( $node['background_image'] ) && is_array( $node['background_image'] ) ) {
+                        if ( isset( $node['background_image']['id'] )
+                            && is_numeric( $node['background_image']['id'] )
+                            && $node['background_image']['id'] > 0 ) {
+                            $used_image_ids[] = intval( $node['background_image']['id'] );
+                        }
+                    }
+
+                    // Carousel, slides etc image list
+                    if ( isset( $node['slides'] ) && is_array( $node['slides'] ) ) {
+                        foreach ( $node['slides'] as $slide ) {
+                            if ( isset( $slide['image']['id'] ) && $slide['image']['id'] > 0 ) {
+                                $used_image_ids[] = intval( $slide['image']['id'] );
+                            }
+                            if ( isset( $slide['background_image']['id'] ) && $slide['background_image']['id'] > 0 ) {
+                                $used_image_ids[] = intval( $slide['background_image']['id'] );
                             }
                         }
+                    }
 
-                        // Check for 'ids' key (arrays or comma-separated strings), common in galleries
-                        if ( isset( $node['ids'] ) ) {
-                            $ids_val = $node['ids'];
-                            if ( is_array( $ids_val ) ) {
-                                foreach ( $ids_val as $id ) {
-                                    if ( is_numeric( $id ) && $id > 0 ) {
-                                        $used_image_ids[] = intval( $id );
-                                    }
-                                }
-                            } elseif ( is_string( $ids_val ) ) {
-                                $ids = array_filter( array_map( 'intval', explode( ',', $ids_val ) ) );
-                                if ( ! empty( $ids ) ) {
-                                    $used_image_ids = array_merge( $used_image_ids, $ids );
-                                }
-                            }
-                        }
-
-                        foreach ( $node as $v ) {
-                            $extract_ids( $v );
+                    // Recursively process all child nodes
+                    foreach ( $node as $key => $value ) {
+                        if ( is_array( $value ) && ! in_array( $key, ['image', 'background_image'], true ) ) {
+                            $extract_elementor_ids( $value );
                         }
                     }
                 };
 
-                $extract_ids( $data );
+                $extract_elementor_ids( $data );
             }
 
             $el_offset += $batch_size;
         }
 
-        // Divi Builder: scan posts using Divi shortcodes and extract image IDs/URLs
+        // Divi Builder: scan posts using Divi shortcodes and post meta, extract image IDs/URLs
         $divi_offset = 0;
         while ( true ) {
             $sql_divi = $wpdb->prepare(
@@ -758,18 +775,78 @@ class Unused_Media_List extends WP_List_Table {
                     }
                 }
 
-                // URLs stored on modules (src, url, image_url, background_image)
-                if ( preg_match_all( '/\\b(src|url|image_url|background_image)\\s*=\\s*\"([^\"]+)\"/i', $content, $m_urls ) ) {
-                    foreach ( $m_urls[2] as $url ) {
-                        $id = attachment_url_to_postid( $url );
-                        if ( $id ) {
-                            $used_image_ids[] = intval( $id );
-                        }
-                    }
+                // Collect URLs for batch lookup
+				if ( preg_match_all( '/\b(src|url|image_url|background_image)\s*=\s*"([^"]+)"/i', $content, $m_urls ) ) {
+					foreach ( $m_urls[2] as $url ) {
+						if ( strpos( $url, 'wp-content/uploads' ) !== false ) {
+							$divi_urls[] = $url;
+						}
+					}
+				}
+            }
+
+            // Batch URL-to-ID lookup for this batch of Divi posts
+			foreach ( array_unique( $divi_urls ) as $url ) {
+				$id = attachment_url_to_postid( $url );
+				if ( $id ) {
+					$used_image_ids[] = intval( $id );
+				}
+			}
+
+            $divi_offset += $batch_size;
+        }
+
+        // Second scan: Divi posts in post meta (JSON data like Elementor)
+        $divi_meta_offset = 0;
+        while ( true ) {
+            $sql_divi_meta = $wpdb->prepare(
+                "SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_et_pb_use_builder' AND meta_value = 'on' LIMIT %d OFFSET %d",
+                $batch_size,
+                $divi_meta_offset
+            );
+            $divi_meta_posts = $this->get_cached_db_result( $sql_divi_meta );
+
+            if ( empty( $divi_meta_posts ) ) {
+                break;
+            }
+
+            foreach ( $divi_meta_posts as $post_id ) {
+                $post = get_post( $post_id );
+                if ( empty( $post ) || $post->post_status !== 'publish' ) {
+                    continue;
+                }
+
+                $divi_ids = $this->extract_ids_from_divi_content( $post->post_content );
+                if ( ! empty( $divi_ids ) ) {
+                    $used_image_ids = array_merge( $used_image_ids, $divi_ids );
                 }
             }
 
-            $divi_offset += $batch_size;
+            $divi_meta_offset += $batch_size;
+        }
+
+        // Third scan: Divi Library layouts (custom post type)
+        $divi_layout_offset = 0;
+        while ( true ) {
+            $sql_divi_layout = $wpdb->prepare(
+                "SELECT ID, post_content FROM {$wpdb->posts} WHERE post_type = 'et_pb_layout' AND post_status = 'publish' LIMIT %d OFFSET %d",
+                $batch_size,
+                $divi_layout_offset
+            );
+            $divi_layouts = $this->get_cached_db_result( $sql_divi_layout, 'results' );
+
+            if ( empty( $divi_layouts ) ) {
+                break;
+            }
+
+            foreach ( $divi_layouts as $post ) {
+                $divi_ids = $this->extract_ids_from_divi_content( $post->post_content );
+                if ( ! empty( $divi_ids ) ) {
+                    $used_image_ids = array_merge( $used_image_ids, $divi_ids );
+                }
+            }
+
+            $divi_layout_offset += $batch_size;
         }
 
         // Generic: scan direct uploads URLs in post content and map to attachment IDs
@@ -919,6 +996,106 @@ class Unused_Media_List extends WP_List_Table {
             $used_image_ids[] = intval( $background_image_id );
         }
 
+        // Scan widget options for image URLs and IDs
+        $offset_widgets = 0;
+        while ( true ) {
+            // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.LikeWildcardsInQuery
+            $sql_widgets = $wpdb->prepare(
+                "SELECT option_value FROM {$wpdb->options} WHERE option_name LIKE %s LIMIT %d OFFSET %d",
+                'widget\_%',
+                $batch_size,
+                $offset_widgets
+            );
+            $widget_option_values = $this->get_cached_db_result( $sql_widgets, 'col' );
+
+            if ( empty( $widget_option_values ) ) {
+                break;
+            }
+
+            foreach ( $widget_option_values as $option_value ) {
+                if ( empty( $option_value ) ) {
+                    continue;
+                }
+
+                // Check for serialized widget data
+                if ( is_serialized( $option_value ) ) {
+                    $unserialized = @unserialize( $option_value );
+                    if ( is_array( $unserialized ) ) {
+                        array_walk_recursive( $unserialized, function( $item, $key ) use ( &$used_image_ids ) {
+                            if ( ! is_string( $item ) && ! is_numeric( $item ) ) {
+                                return;
+                            }
+
+                            // Check for URLs or paths containing wp-content/uploads
+                            if ( is_string( $item ) && strpos( $item, 'wp-content/uploads' ) !== false ) {
+                                // Full URL
+                                if ( preg_match( '/https?:\/\/[^\s"\'<>]+\/wp-content\/uploads\/[^\s"\'<>]+/i', $item, $url_match ) ) {
+                                    $id = attachment_url_to_postid( $url_match[0] );
+                                    if ( $id ) {
+                                        $used_image_ids[] = intval( $id );
+                                    }
+                                }
+                                // Relative path
+                                elseif ( preg_match( '/(\/wp-content\/uploads\/[^\s"\'<>?\#]+)/i', $item, $rel_match ) ) {
+                                    $full_url = site_url() . $rel_match[1];
+                                    $id = attachment_url_to_postid( $full_url );
+                                    if ( $id ) {
+                                        $used_image_ids[] = intval( $id );
+                                    }
+                                }
+                                return;
+                            }
+
+                            $skip_keys = ['width', 'height', 'file_size', 'filesize', 'size', 'length',
+                                        'bitrate', 'duration', 'uploaded', 'year', 'month', 'day',
+                                        'percent', 'bytes', 'time', 'lossy', 'keep_exif', 'api_version',
+                                        'size_before', 'size_after', 'number'];
+                            if ( in_array( $key, $skip_keys, true ) ) {
+                                return;
+                            }
+
+                            $image_key_patterns = ['img', 'image', 'thumb', 'thumbnail', 'photo',
+                                                'picture', 'avatar', 'logo', 'icon', 'background',
+                                                'banner', 'attachment'];
+                            $is_image_key = false;
+                            foreach ( $image_key_patterns as $pattern ) {
+                                if ( stripos( (string) $key, $pattern ) !== false ) {
+                                    $is_image_key = true;
+                                    break;
+                                }
+                            }
+
+                            if ( $is_image_key && is_numeric( $item ) && $item > 0 && $item < 999999999 ) {
+                                $used_image_ids[] = intval( $item );
+                            }
+                        });
+                    }
+                }
+
+                // Non-serialized string — direct URL check
+                if ( is_string( $option_value ) && strpos( $option_value, 'wp-content/uploads' ) !== false ) {
+                    if ( preg_match_all( "/https?:\/\/[^\s\"'<>]+\/wp-content\/uploads\/[^\s\"'<>]+/i", $option_value, $m_url_all ) ) {
+                        foreach ( $m_url_all[0] as $url ) {
+                            $id = attachment_url_to_postid( $url );
+                            if ( $id ) {
+                                $used_image_ids[] = intval( $id );
+                            }
+                        }
+                    }
+                    if ( preg_match_all( "/(\/wp-content\/uploads\/[^\s\"'<>?\#]+)/i", $option_value, $m_url_rel ) ) {
+                        foreach ( $m_url_rel[0] as $relative_url ) {
+                            $id = attachment_url_to_postid( site_url() . $relative_url );
+                            if ( $id ) {
+                                $used_image_ids[] = intval( $id );
+                            }
+                        }
+                    }
+                }
+            }
+
+            $offset_widgets += $batch_size;
+        }
+
         $used_image_ids = array_unique( array_filter( array_map( 'intval', $used_image_ids ), function( $id ) {
             return $id > 0 && $id < 999999999;
         }));
@@ -950,13 +1127,7 @@ class Unused_Media_List extends WP_List_Table {
         $progress = get_transient( $progress_key );
 
         // Only force calculation if not already in progress
-        if ( ! $progress || $progress['step'] >= $progress['total_steps'] ) {
-            // Starting fresh scan or resuming completed scan
-            $used_image_ids = $this->get_used_media_ids();
-        } else {
-            // Continue existing scan
-            $used_image_ids = $this->get_used_media_ids();
-        }
+        $used_image_ids = $this->get_used_media_ids();
 
         // Get all attachment IDs
         $all_attachments = $this->get_cached_db_result( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'attachment' AND post_status = 'inherit'" );
@@ -988,73 +1159,66 @@ class Unused_Media_List extends WP_List_Table {
         return count( $unused_ids );
     }
 
-    public function prepare_items() {
-        global $wpdb;
+    /**
+	 * Prepare items for display in the table.
+	 */
+	public function prepare_items() {
+		$this->display_delete_message();
 
-        $this->display_delete_message();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Search request is a GET request and safe.
-        $search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+		$per_page     = $this->get_items_per_page( 'unused_media_cleaner_per_page', 10 );
+		$current_page = $this->get_pagenum();
 
-        $per_page     = $this->get_items_per_page( 'unused_media_cleaner_per_page', 10 );
-        $current_page = $this->get_pagenum();
-        $offset       = ( $current_page - 1 ) * $per_page;
+		$unused_image_ids = get_option( 'media_tracker_unused_ids_snapshot', array() );
 
-        // Retrieve from snapshot
-        $unused_image_ids = get_option( 'media_tracker_unused_ids_snapshot', array() );
+		if ( empty( $unused_image_ids ) ) {
+			$this->items = array();
+			$total_items = 0;
+		} else {
+			// FIX: whitelist orderby and order to prevent injection
+			$allowed_orderby = array( 'post_title', 'post_author', 'post_date', 'date' );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$orderby_param = isset( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'date';
+			$orderby_param = in_array( $orderby_param, $allowed_orderby, true ) ? $orderby_param : 'date';
 
-        // Handle search if needed (filter snapshot IDs by search term)
-        // This requires a query if search is present, but restricted to snapshot IDs.
+			$allowed_order = array( 'ASC', 'DESC' );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$order_param = isset( $_REQUEST['order'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ) : 'DESC';
+			$order_param = in_array( $order_param, $allowed_order, true ) ? $order_param : 'DESC';
 
-        $where_conditions = [
-            "p.post_type = 'attachment'",
-            "p.post_status = 'inherit'"
-        ];
+			$args = array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post__in'       => $unused_image_ids,
+				'posts_per_page' => $per_page,
+				'paged'          => $current_page,
+				'orderby'        => $orderby_param,
+				'order'          => $order_param,
+			);
 
-        if ( empty( $unused_image_ids ) ) {
-            // No unused media found in snapshot (or not scanned yet)
-            $this->items = array();
-            $total_items = 0;
-        } else {
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Orderby and order are safe for sorting.
-            $orderby_param = isset( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'date';
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Orderby and order are safe for sorting.
-            $order_param   = isset( $_REQUEST['order'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'DESC';
+			if ( $this->author_id ) {
+				$args['author'] = $this->author_id;
+			}
 
-            $args = array(
-                'post_type'      => 'attachment',
-                'post_status'    => 'inherit',
-                'post__in'       => $unused_image_ids,
-                'posts_per_page' => $per_page,
-                'paged'          => $current_page,
-                'orderby'        => $orderby_param,
-                'order'          => $order_param,
-            );
+			if ( $search ) {
+				$args['s'] = $search;
+			}
 
-            if ( $this->author_id ) {
-                $args['author'] = $this->author_id;
-            }
+			$query       = new \WP_Query( $args );
+			$this->items = $query->posts;
+			$total_items = $query->found_posts;
+		}
 
-            if ( $search ) {
-                $args['s'] = $search;
-            }
+		$this->_column_headers = array( $this->get_columns(), array(), $this->get_sortable_columns() );
 
-            $query = new \WP_Query( $args );
-            $this->items = $query->posts;
-            $total_items = $query->found_posts;
-        }
-
-        $columns               = $this->get_columns();
-        $hidden                = [];
-        $sortable              = $this->get_sortable_columns();
-        $this->_column_headers = [ $columns, $hidden, $sortable ];
-
-        $this->set_pagination_args( array(
-            'total_items' => $total_items,
-            'per_page'    => $per_page,
-            'total_pages' => $per_page > 0 ? ceil( $total_items / $per_page ) : 0,
-        ) );
-    }
+		$this->set_pagination_args( array(
+			'total_items' => $total_items,
+			'per_page'    => $per_page,
+			'total_pages' => $per_page > 0 ? ceil( $total_items / $per_page ) : 0,
+		) );
+	}
 
     private function should_invalidate_cache() {
         // Manual mode: only refresh cache when a scan is run.
@@ -1094,6 +1258,22 @@ class Unused_Media_List extends WP_List_Table {
 
         if ( empty( $unused_image_ids ) ) {
             return 0;
+        }
+
+        // Filter out deleted attachments from snapshot
+        $existing_ids = $this->get_cached_db_result( "
+            SELECT ID
+            FROM {$wpdb->posts}
+            WHERE post_type = 'attachment'
+            AND post_status = 'inherit'
+            AND ID IN (" . implode( ',', array_map( 'intval', $unused_image_ids ) ) . ")
+        ");
+
+        // Update snapshot if any IDs were removed
+        if ( count( $existing_ids ) !== count( $unused_image_ids ) ) {
+            $unused_image_ids = $existing_ids;
+            update_option( 'media_tracker_unused_ids_snapshot', $unused_image_ids, false );
+            update_option( 'media_tracker_unused_count_last_scan', count( $unused_image_ids ) );
         }
 
         $where_conditions = [
@@ -1141,6 +1321,22 @@ class Unused_Media_List extends WP_List_Table {
 
         if ( empty( $unused_image_ids ) ) {
             return array();
+        }
+
+        // Filter out deleted attachments from snapshot
+        $existing_ids = $this->get_cached_db_result( "
+            SELECT ID
+            FROM {$wpdb->posts}
+            WHERE post_type = 'attachment'
+            AND post_status = 'inherit'
+            AND ID IN (" . implode( ',', array_map( 'intval', $unused_image_ids ) ) . ")
+        ");
+
+        // Update snapshot if any IDs were removed
+        if ( count( $existing_ids ) !== count( $unused_image_ids ) ) {
+            $unused_image_ids = $existing_ids;
+            update_option( 'media_tracker_unused_ids_snapshot', $unused_image_ids, false );
+            update_option( 'media_tracker_unused_count_last_scan', count( $unused_image_ids ) );
         }
 
         // Build query to get all unused media
@@ -1230,7 +1426,7 @@ class Unused_Media_List extends WP_List_Table {
     private function get_cached_db_result( $query, $type = 'col' ) {
         global $wpdb;
 
-        $key = 'mt_db_' . md5( $query );
+        $key = 'mt_db_' . md5( $query . $type );
         $group = 'media_tracker';
         $result = wp_cache_get( $key, $group );
 

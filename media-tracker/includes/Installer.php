@@ -140,7 +140,7 @@ class Installer {
         $feedback = isset($_POST['feedback']) ? sanitize_textarea_field(wp_unslash($_POST['feedback'])) : '';
 
         if ( ! empty( $feedback ) ) {
-            $to = 'hello@thebitcraft.com';
+            $to = 'rejuan.17bd@gmail.com';
             $subject = __( 'Media Tracker Plugin Feedback', 'media-tracker' );
             $message = "Feedback:\n\n" . $feedback;
             $headers = array( 'Content-Type: text/plain; charset=UTF-8' );
