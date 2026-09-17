@@ -13,7 +13,6 @@ Media Tracker is a WordPress plugin to find and remove unused media files, manag
 == Description ==
 Media Tracker is a powerful WordPress plugin designed to help you identify and remove unused media files, manage duplicate images, and streamline your media library for better site performance and storage efficiency. Boost your WordPress site’s speed and organization with Media Tracker, the ultimate solution for managing and optimizing media files. Effortlessly track, organize, and clean up unused images to maintain an efficient and clutter-free media library. With Media Tracker, you can easily locate where each image is used across posts, pages, and custom post types, enhancing your website's performance and user experience.
 
-[youtube https://www.youtube.com/watch?v=2eMRuW5X-iI]
 
 ## Features
 
