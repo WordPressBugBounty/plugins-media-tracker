@@ -97,30 +97,33 @@ class Menu {
     }
 
     /**
-     * Add media page to WordPress admin menu.
+     * Add Media Tracker top-level admin menu with submenus.
      */
     public function register_media_tracker_menu() {
-        // Main parent page - will show overview by default
-        add_media_page(
+        // Top-level menu - positioned right below the default Media menu (position 10)
+        add_menu_page(
             __( 'Media Tracker', 'media-tracker' ),
+            __( ' Media Tracker', 'media-tracker' ),
+            'manage_options',
+            'media-tracker',
+            array( $this, 'media_tracker_admin_page' ),
+            MEDIA_TRACKER_URL . '/assets/src/images/logo.svg',
+            11
+        );
+
+        // Dashboard submenu (re-registers the top-level slug so the first item is labeled "Dashboard")
+        add_submenu_page(
+            'media-tracker',
             __( 'Media Tracker', 'media-tracker' ),
+            __( 'Dashboard', 'media-tracker' ),
             'manage_options',
             'media-tracker',
             array( $this, 'media_tracker_admin_page' )
         );
 
-        // Add submenu pages for each tab
+        // Unused Media submenu
         add_submenu_page(
-            null, // Parent slug - null to hide from sidebar menu
-            __( 'Dashboard', 'media-tracker' ),
-            __( 'Dashboard', 'media-tracker' ),
-            'manage_options',
-            'media-tracker-overview',
-            array( $this, 'media_tracker_overview_page' )
-        );
-
-        add_submenu_page(
-            null,
+            'media-tracker',
             __( 'Unused Media', 'media-tracker' ),
             __( 'Unused Media', 'media-tracker' ),
             'manage_options',
@@ -128,70 +131,15 @@ class Menu {
             array( $this, 'media_tracker_unused_media_page' )
         );
 
+        // Duplicate Media submenu
         add_submenu_page(
-            null,
+            'media-tracker',
             __( 'Duplicate Media', 'media-tracker' ),
             __( 'Duplicate Media', 'media-tracker' ),
             'manage_options',
             'media-tracker-duplicates',
             array( $this, 'media_tracker_duplicates_page' )
         );
-
-        add_submenu_page(
-            null,
-            __( 'External Storage', 'media-tracker' ),
-            __( 'External Storage', 'media-tracker' ),
-            'manage_options',
-            'media-tracker-external-storage',
-            array( $this, 'media_tracker_external_storage_page' )
-        );
-
-        add_submenu_page(
-            null,
-            __( 'Optimization', 'media-tracker' ),
-            __( 'Optimization', 'media-tracker' ),
-            'manage_options',
-            'media-tracker-optimization',
-            array( $this, 'media_tracker_optimization_page' )
-        );
-
-        add_submenu_page(
-            null,
-            __( 'Security & Logs', 'media-tracker' ),
-            __( 'Security & Logs', 'media-tracker' ),
-            'manage_options',
-            'media-tracker-security',
-            array( $this, 'media_tracker_security_page' )
-        );
-
-        add_submenu_page(
-            null,
-            __( 'Multi-site', 'media-tracker' ),
-            __( 'Multi-site', 'media-tracker' ),
-            'manage_options',
-            'media-tracker-multisite',
-            array( $this, 'media_tracker_multisite_page' )
-        );
-
-        add_submenu_page(
-            null,
-            __( 'Documents', 'media-tracker' ),
-            __( 'Documents', 'media-tracker' ),
-            'manage_options',
-            'media-tracker-documents',
-            array( $this, 'media_tracker_documents_page' )
-        );
-
-        if ( media_tracker_is_pro_active() ) {
-            add_submenu_page(
-                null,
-                __( 'License', 'media-tracker' ),
-                __( 'License', 'media-tracker' ),
-                'manage_options',
-                'media-tracker-license',
-                array( $this, 'media_tracker_license_page' )
-            );
-        }
     }
 
     public function media_tracker_admin_page() {
@@ -203,40 +151,12 @@ class Menu {
         include __DIR__ . '/views/media-tracker.php';
     }
 
-    public function media_tracker_overview_page() {
-        $this->render_tab_page( 'overview' );
-    }
-
     public function media_tracker_unused_media_page() {
         $this->render_tab_page( 'unused-media' );
     }
 
     public function media_tracker_duplicates_page() {
         $this->render_tab_page( 'duplicates' );
-    }
-
-    public function media_tracker_external_storage_page() {
-        $this->render_tab_page( 'external-storage' );
-    }
-
-    public function media_tracker_optimization_page() {
-        $this->render_tab_page( 'optimization' );
-    }
-
-    public function media_tracker_security_page() {
-        $this->render_tab_page( 'security' );
-    }
-
-    public function media_tracker_multisite_page() {
-        $this->render_tab_page( 'multisite' );
-    }
-
-    public function media_tracker_documents_page() {
-        $this->render_tab_page( 'documents' );
-    }
-
-    public function media_tracker_license_page() {
-        $this->render_tab_page( 'license' );
     }
 
     /**

@@ -1,10 +1,10 @@
-=== Media Tracker ===
+=== Media Tracker - Track Unused, Duplicate & Used Media ===
 Contributors: rejuancse
 Tags: tracker, unused, media cleaner, duplicate, optimizer
 Requires at least: 5.9
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.7
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,7 +30,6 @@ Media Tracker is a powerful WordPress plugin designed to help you identify and r
 - GIF
 - MP4 (Video)
 - PDF
-
 
 **Supports Plugins:**
 ✔ WooCommerce
@@ -78,6 +77,19 @@ A. Found a bug? Please let us know by posting on the support section of this plu
 5. Documentations
 
 == Changelog ==
+= 1.4.0 [05/10/2026] =
+* New: Media Tracker now has its own top-level admin menu (no longer under the Media menu)
+* Enhanced: Complete design update for a cleaner, unified admin interface
+* Enhanced: Duplicate media page now has bulk actions bar (top & bottom) with "Delete permanently", same as the Unused Media page
+* Enhanced: Bottom pagination added to the Duplicate media list
+* Fixed: "Number of items per page" screen option now works correctly on the Duplicate media page (pagination counts images and never splits a duplicate group across pages)
+* Fixed: WordPress plugin checker compliance errors (missing $wpdb->prepare placeholders, translation warnings)
+* Internal: Overview tab inline JavaScript moved to external script file for better maintainability
+
+= 1.3.7 [01/09/2026] =
+* Fixed: Unused media list bug fixed
+* Fixed: Duplicate media list bug fixed
+
 = 1.3.6 [30/05/2026] =
 * Fixed: Unused media list bug fixed
 * Fixed: Duplicate media list bug fixed

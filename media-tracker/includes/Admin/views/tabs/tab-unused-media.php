@@ -2,11 +2,6 @@
 /**
  * Tab: Unused Media
  *
- * This template can be overridden by copying it to:
- * - yourtheme/media-tracker-pro/tabs/tab-unused-media.php
- * - yourtheme/media-tracker/tabs/tab-unused-media.php
- * - media-tracker-pro/templates/tabs/tab-unused-media.php
- *
  * @package Media_Tracker
  * @since 1.3.0
  */
@@ -50,7 +45,7 @@ if ( class_exists( '\Media_Tracker\Admin\Unused_Media_List' ) ) {
     $media_tracker_unused_media_list->prepare_items();
     ?>
 
-    <div id="screen-meta-links" style="display:none;">
+    <div id="screen-meta-links" class="mt-hidden">
         <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
             <button type="button" id="show-settings-link" class="button show-settings" aria-expanded="false">
                 <?php esc_html_e( 'Screen Options', 'media-tracker' ); ?>

@@ -22,11 +22,16 @@ class Media_Usage {
         // Handle sorting logic
         add_filter( 'posts_clauses', array( $this, 'sort_by_usage_count' ), 10, 2 );
         // Column width/styles only on Media Library list screen
-        add_action( 'admin_head-upload.php', array( $this, 'print_usage_count_column_css' ) );
+        add_action( 'admin_head-upload.php', array( $this, 'print_usage_count_column_script' ) );
         // AJAX for dashboard stats
         add_action( 'wp_ajax_media_tracker_get_most_used', array( $this, 'ajax_get_most_used' ) );
         // AJAX for refreshing used media stats
         add_action( 'wp_ajax_media_tracker_refresh_used_stats', array( $this, 'ajax_refresh_used_stats' ) );
+        // Invalidate persistent usage-count cache
+        add_action( 'delete_attachment', array( $this, 'clear_usage_cache' ) );
+        add_action( 'added_post_meta', array( $this, 'clear_thumbnail_usage_cache' ), 10, 4 );
+        add_action( 'updated_post_meta', array( $this, 'clear_thumbnail_usage_cache' ), 10, 4 );
+        add_action( 'deleted_post_meta', array( $this, 'clear_thumbnail_usage_cache' ), 10, 4 );
     }
 
     /**
@@ -62,7 +67,7 @@ class Media_Usage {
                             <td><strong><?php echo esc_html( $media_tracker_media->post_title ); ?></strong></td>
                             <td><?php echo esc_html( $media_tracker_file_type ); ?></td>
                             <td>
-                                <span class="tag" style="background: #10b981; color: white;">
+                                <span class="tag mt-tag-success">
                                     <?php
                                     /* translators: %d: Number of times the media is used. */
                                     printf( esc_html__( '%d times', 'media-tracker' ), intval( $media_tracker_media->usage_count ) );
@@ -70,7 +75,7 @@ class Media_Usage {
                                 </span>
                             </td>
                             <td>
-                                <a href="<?php echo esc_url( $media_tracker_edit_link ); ?>" class="btn btn-outline" style="padding: 5px 10px; text-decoration: none;">
+                                <a href="<?php echo esc_url( $media_tracker_edit_link ); ?>" class="btn btn-outline mt-btn-xs-clean">
                                     <i class="dashicons dashicons-visibility"></i>
                                     <?php esc_html_e( 'View', 'media-tracker' ); ?>
                                 </a>
@@ -81,8 +86,8 @@ class Media_Usage {
             </table>
             <?php
         } else {
-            echo '<p style="color: #64748b; text-align: center; padding: 40px;">';
-            echo '<i class="dashicons dashicons-chart-bar" style="font-size: 48px; color: #cbd5e1; margin-bottom: 15px; height: 48px; width: 48px;"></i><br>';
+            echo '<p class="mt-empty-state-large">';
+            echo '<i class="dashicons dashicons-chart-bar mt-chart-icon-large"></i><br>';
             esc_html_e( 'No media usage data available.', 'media-tracker' );
             echo '</p>';
         }
@@ -656,7 +661,7 @@ class Media_Usage {
         if ( 'usage_count' !== $column_name ) {
             return;
         }
-        $count = $this->get_media_usage_count( $post_id );
+        $count = $this->count_media_usage( $post_id );
         $edit_link = get_edit_post_link( $post_id );
         if ( empty( $edit_link ) ) {
             echo intval( $count );
@@ -667,17 +672,11 @@ class Media_Usage {
     }
 
     /**
-     * Print compact column CSS for Media Library
+     * Print compact column highlight script for Media Library.
+     * Column styles are handled by assets/src/scss/mt-admin.scss
      */
-    public function print_usage_count_column_css() {
-        echo '<style>
-        .wp-list-table .column-usage_count{width:120px; text-align:center; white-space:nowrap;}
-        .wp-list-table td.column-usage_count .mt-usage-count-link{display:inline-block; padding:0 6px; border-radius:4px; text-align:center;}
-        @media (max-width:782px){.wp-list-table .column-usage_count{width:60px;}}
-        .mt-highlight{animation: mt-pulse 2s ease-in-out 3;}
-        @keyframes mt-pulse{0%,100%{background-color:#fff9c4;}50%{background-color:#ffeb3b;}}
-        </style>
-        <script>
+    public function print_usage_count_column_script() {
+        echo '<script>
         jQuery(document).ready(function($) {
             const urlParams = new URLSearchParams(window.location.search);
             const highlight = urlParams.get("highlight");
@@ -728,7 +727,7 @@ class Media_Usage {
 
             $usage_counts = array();
             foreach ( $attachment_ids as $attachment_id ) {
-                $usage_counts[ $attachment_id ] = $this->get_media_usage_count( $attachment_id );
+                $usage_counts[ $attachment_id ] = $this->count_media_usage( $attachment_id );
             }
 
             // Sort by usage count
@@ -774,7 +773,7 @@ class Media_Usage {
             <table class="wp-list-table widefat fixed striped table-view-list">
                 <thead>
                     <tr>
-                        <th scope="col" class="manage-column column-primary" style="width: 50px;">' . esc_html__( '#', 'media-tracker' ) . '</th>
+                        <th scope="col" class="manage-column column-primary">' . esc_html__( '#', 'media-tracker' ) . '</th>
                         <th scope="col" class="manage-column">' . esc_html__( 'Title', 'media-tracker' ) . '</th>
                         <th scope="col" class="manage-column">' . esc_html__( 'Type', 'media-tracker' ) . '</th>
                         <th scope="col" class="manage-column">' . esc_html__( 'Date Added', 'media-tracker' ) . '</th>
@@ -838,6 +837,163 @@ class Media_Usage {
             echo '<p>' . esc_html__( 'No posts or pages found using this media file.', 'media-tracker' ) . '</p>';
         }
         echo '</div>';
+    }
+
+    /**
+     * Get usage count for an attachment with persistent caching.
+     *
+     * Uses request-level object cache first, then a 12h transient so heavy
+     * usage scans do not run on every page load. Cache is invalidated when
+     * the attachment is deleted or its _thumbnail_id references change.
+     *
+     * @param int $attachment_id Attachment ID.
+     * @return int Usage count.
+     */
+    public function count_media_usage( $attachment_id ) {
+        $attachment_id = (int) $attachment_id;
+        if ( $attachment_id <= 0 ) {
+            return 0;
+        }
+
+        $cache_key = 'media_tracker_usage_' . $attachment_id;
+        $cached = wp_cache_get( $cache_key, 'media_tracker' );
+        if ( false !== $cached ) {
+            return (int) $cached;
+        }
+
+        $transient = get_transient( 'media_tracker_uc_' . $attachment_id );
+        if ( false !== $transient ) {
+            wp_cache_set( $cache_key, (int) $transient, 'media_tracker' );
+            return (int) $transient;
+        }
+
+        $count = $this->get_media_usage_count( $attachment_id );
+
+        wp_cache_set( $cache_key, (int) $count, 'media_tracker' );
+        set_transient( 'media_tracker_uc_' . $attachment_id, (int) $count, 12 * HOUR_IN_SECONDS );
+
+        return (int) $count;
+    }
+
+    /**
+     * Batched lightweight usage counts for many attachments in a few queries.
+     *
+     * Approximates the full usage scan (featured images + content references)
+     * and is intended for sorting large ID sets cheaply. Displayed values
+     * should use count_media_usage() for exact numbers.
+     *
+     * @param array $ids Attachment IDs.
+     * @return array<int, int> Map of attachment ID => usage count.
+     */
+    public function get_usage_counts_batched( $ids ) {
+        global $wpdb;
+
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', (array) $ids ) ) ) );
+        $counts = array_fill_keys( $ids, 0 );
+        if ( empty( $ids ) ) {
+            return $counts;
+        }
+
+        // Sort-independent cache so repeated sorting does not rescan.
+        $cached_ids = $ids;
+        sort( $cached_ids );
+        $batch_key = 'media_tracker_buc_' . substr( md5( implode( ',', $cached_ids ) ), 0, 24 );
+        $cached_counts = get_transient( $batch_key );
+        if ( false !== $cached_counts && is_array( $cached_counts ) ) {
+            return array_map( 'intval', $cached_counts );
+        }
+
+        /*
+         * Both queries build variable-length placeholder lists (dynamic IN
+         * (...) and per-ID computed columns). IDs are sanitized with intval()
+         * above and every query runs through $wpdb->prepare(), so the static
+         * placeholder counting warnings below are false positives.
+         */
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
+        foreach ( array_chunk( $ids, 100 ) as $chunk ) {
+            // Featured image usage (exact, indexed meta_key lookup).
+            $in_placeholders = implode( ',', array_fill( 0, count( $chunk ), '%d' ) );
+            $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT CAST(pm.meta_value AS UNSIGNED) AS mid, COUNT(DISTINCT p.ID) AS c
+                    FROM {$wpdb->postmeta} pm
+                    JOIN {$wpdb->posts} p ON p.ID = pm.post_id AND p.post_status = 'publish'
+                    WHERE pm.meta_key = %s
+                      AND pm.meta_value + 0 IN ( {$in_placeholders} )
+                    GROUP BY pm.meta_value + 0",
+                    '_thumbnail_id',
+                    ...$chunk
+                )
+            );
+            if ( $rows ) {
+                foreach ( $rows as $row ) {
+                    $mid = (int) $row->mid;
+                    if ( isset( $counts[ $mid ] ) ) {
+                        $counts[ $mid ] += (int) $row->c;
+                    }
+                }
+            }
+
+            // Content references: one full scan per chunk instead of one per ID.
+            $select = array();
+            $args   = array();
+            foreach ( $chunk as $id ) {
+                $select[] = "SUM(LOCATE(%s, post_content) > 0) + SUM(LOCATE(%s, post_content) > 0) AS u%d";
+                $args[]   = '"id":' . $id;
+                $args[]   = 'wp-image-' . $id;
+                $args[]   = $id;
+            }
+            $row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT " . implode( ', ', $select ) . " FROM {$wpdb->posts} WHERE post_status = 'publish' LIMIT 1",
+                    $args
+                )
+            );
+            if ( $row ) {
+                foreach ( $chunk as $id ) {
+                    $prop = "u{$id}";
+                    if ( isset( $row->{$prop} ) ) {
+                        $counts[ $id ] += (int) $row->{$prop};
+                    }
+                }
+            }
+        }
+        // phpcs:enable
+
+        set_transient( $batch_key, $counts, 10 * MINUTE_IN_SECONDS );
+
+        return $counts;
+    }
+
+    /**
+     * Clear the persistent usage cache of a single attachment.
+     *
+     * @param int $attachment_id Attachment ID.
+     */
+    public function clear_usage_cache( $attachment_id ) {
+        $attachment_id = (int) $attachment_id;
+        delete_transient( 'media_tracker_uc_' . $attachment_id );
+        wp_cache_delete( 'media_tracker_usage_' . $attachment_id, 'media_tracker' );
+    }
+
+    /**
+     * Clear usage cache when a _thumbnail_id meta changes (featured image set/removed).
+     *
+     * @param int    $meta_id    Meta ID.
+     * @param int    $object_id  Post ID.
+     * @param string $meta_key   Meta key.
+     * @param mixed  $meta_value Meta value.
+     */
+    public function clear_thumbnail_usage_cache( $meta_id, $object_id, $meta_key, $meta_value ) {
+        if ( '_thumbnail_id' !== $meta_key ) {
+            return;
+        }
+
+        foreach ( array( $meta_value, get_post_meta( (int) $object_id, '_thumbnail_id', true ) ) as $attachment_id ) {
+            if ( $attachment_id ) {
+                $this->clear_usage_cache( $attachment_id );
+            }
+        }
     }
 
     /**

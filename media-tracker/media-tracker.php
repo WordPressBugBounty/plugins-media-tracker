@@ -3,10 +3,10 @@
  * Plugin Name: Media Tracker
  * Description: Media Tracker is a WordPress plugin to find and remove unused media files, manage duplicates, and optimize your media library for better performance.
  * Author: Rejuan Ahamed
- * Version: 1.3.7
+ * Version: 1.4.0
  * Requires PHP: 7.4
  * Requires at least: 5.9
- * Tested up to: 7.0
+ * Tested up to: 7.1
  * Text Domain: media-tracker
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -26,7 +26,7 @@ final class Media_Tracker {
      *
      * @var string
      */
-    const version = '1.3.7';
+    const version = '1.4.0';
 
     /**
      * Class constructor

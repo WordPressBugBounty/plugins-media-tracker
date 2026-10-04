@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Media Tracker 1.3.7\n"
+"Project-Id-Version: Media Tracker 1.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/media-tracker\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-16T14:57:13+00:00\n"
+"POT-Creation-Date: 2026-10-04T15:59:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: media-tracker\n"
@@ -17,8 +17,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: media-tracker.php
 #: includes/Admin/Menu.php:105
-#: includes/Admin/Menu.php:106
-#: includes/Admin/views/media-tracker.php:7
+#: includes/Admin/Menu.php:117
 msgid "Media Tracker"
 msgstr ""
 
@@ -32,255 +31,200 @@ msgstr ""
 msgid "Rejuan Ahamed"
 msgstr ""
 
-#: includes/Admin/Duplicate_Images.php:47
-msgid "Duplicates"
-msgstr ""
-
-#: includes/Admin/Duplicate_Images.php:49
-msgid "Duplicate images filter"
-msgstr ""
-
-#: includes/Admin/Duplicate_Images.php:50
-msgid "All Media"
-msgstr ""
-
-#: includes/Admin/Duplicate_Images.php:52
-msgid "Show Duplicate Images"
-msgstr ""
-
-#: includes/Admin/Duplicate_Images.php:57
-msgid "Re-scan"
-msgstr ""
-
-#: includes/Admin/Duplicate_Images.php:457
-#: includes/Admin/Duplicate_Images.php:673
-#: includes/Admin/Duplicate_Images.php:731
-#: includes/Admin/Duplicate_Images.php:787
-#: includes/Admin/Menu.php:257
+#: includes/Admin/Duplicate_Images.php:379
+#: includes/Admin/Duplicate_Images.php:624
+#: includes/Admin/Duplicate_Images.php:682
+#: includes/Admin/Duplicate_Images.php:738
+#: includes/Admin/Menu.php:177
 msgid "Unauthorized"
 msgstr ""
 
 #. translators: 1: number of hashes reset, 2: number of images being rescanned
-#: includes/Admin/Duplicate_Images.php:716
+#: includes/Admin/Duplicate_Images.php:667
 #, php-format
 msgid "Reset %1$d hashes. Re-scanning %2$d images..."
 msgstr ""
 
-#: includes/Admin/Duplicate_Images.php:793
+#: includes/Admin/Duplicate_Images.php:744
 msgid "No images selected."
 msgstr ""
 
 #. translators: %d: number of deleted images
-#: includes/Admin/Duplicate_Images.php:822
+#: includes/Admin/Duplicate_Images.php:773
 #, php-format
 msgid "Deleted %d duplicate images."
 msgstr ""
 
-#: includes/Admin/Duplicate_Images.php:828
+#: includes/Admin/Duplicate_Images.php:779
 msgid "No images were deleted."
 msgstr ""
 
-#: includes/Admin/Duplicate_Images.php:863
+#: includes/Admin/Duplicate_Images.php:814
 msgid "items"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:49
-#: includes/Admin/views/tabs/tab-overview.php:285
+#: includes/Admin/Media_Usage.php:54
+#: includes/Admin/views/tabs/tab-overview.php:267
 msgid "File Name"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:50
-#: includes/Admin/Media_Usage.php:779
-#: includes/Admin/views/tabs/tab-overview.php:286
+#: includes/Admin/Media_Usage.php:55
+#: includes/Admin/Media_Usage.php:778
+#: includes/Admin/views/tabs/tab-overview.php:268
 msgid "Type"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:51
-#: includes/Admin/views/tabs/tab-overview.php:287
+#: includes/Admin/Media_Usage.php:56
+#: includes/Admin/views/tabs/tab-overview.php:269
 msgid "Usage Count"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:52
-#: includes/Admin/Media_Usage.php:781
-#: includes/Admin/views/tabs/tab-duplicates.php:213
-#: includes/Admin/views/tabs/tab-overview.php:288
+#: includes/Admin/Media_Usage.php:57
+#: includes/Admin/Media_Usage.php:780
+#: includes/Admin/views/tabs/tab-duplicates.php:238
+#: includes/Admin/views/tabs/tab-overview.php:270
 msgid "Actions"
 msgstr ""
 
 #. translators: %d: Number of times the media is used.
-#: includes/Admin/Media_Usage.php:68
-#: includes/Admin/views/tabs/tab-overview.php:305
+#: includes/Admin/Media_Usage.php:73
+#: includes/Admin/views/tabs/tab-overview.php:287
 #, php-format
 msgid "%d times"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:75
+#: includes/Admin/Media_Usage.php:80
 #: includes/Admin/Unused_Media_List.php:83
-#: includes/Admin/views/tabs/tab-overview.php:312
+#: includes/Admin/views/tabs/tab-overview.php:294
 msgid "View"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:86
-#: includes/Admin/views/tabs/tab-overview.php:322
+#: includes/Admin/Media_Usage.php:91
+#: includes/Admin/views/tabs/tab-overview.php:304
 msgid "No media usage data available."
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:629
+#: includes/Admin/Media_Usage.php:634
 msgid "Media Usage"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:644
-#: includes/Admin/views/tabs/tab-duplicates.php:206
-#: includes/Admin/views/tabs/tab-overview.php:189
+#: includes/Admin/Media_Usage.php:649
+#: includes/Admin/views/tabs/tab-duplicates.php:231
+#: includes/Admin/views/tabs/tab-overview.php:172
 msgid "Usages Count"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:666
+#: includes/Admin/Media_Usage.php:671
 msgid "Open attachment edit screen"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:777
+#: includes/Admin/Media_Usage.php:776
 msgid "#"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:778
-#: includes/Admin/views/tabs/tab-duplicates.php:191
+#: includes/Admin/Media_Usage.php:777
+#: includes/Admin/views/tabs/tab-duplicates.php:216
 msgid "Title"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:780
+#: includes/Admin/Media_Usage.php:779
 msgid "Date Added"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:794
+#: includes/Admin/Media_Usage.php:793
 msgid "System Setting"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:797
+#: includes/Admin/Media_Usage.php:796
 msgid "Customize Site Icon"
 msgstr ""
 
 #. Translators: This is a time difference string
-#: includes/Admin/Media_Usage.php:807
+#: includes/Admin/Media_Usage.php:806
 #, php-format
 msgid "%s ago"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:829
+#: includes/Admin/Media_Usage.php:828
 msgid "Admin View"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:830
+#: includes/Admin/Media_Usage.php:829
 msgid "Frontend View"
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:838
+#: includes/Admin/Media_Usage.php:837
 msgid "No posts or pages found using this media file."
 msgstr ""
 
-#: includes/Admin/Media_Usage.php:879
+#: includes/Admin/Media_Usage.php:1035
 msgid "Site Icon (Favicon)"
 msgstr ""
 
-#: includes/Admin/Menu.php:115
-#: includes/Admin/Menu.php:116
-#: includes/Admin/views/tabs/tab-overview.php:88
+#: includes/Admin/Menu.php:106
+msgid " Media Tracker"
+msgstr ""
+
+#: includes/Admin/Menu.php:118
+#: includes/Admin/views/tabs/tab-overview.php:81
 #: includes/functions.php:26
 msgid "Dashboard"
 msgstr ""
 
-#: includes/Admin/Menu.php:124
-#: includes/Admin/Menu.php:125
-#: includes/Admin/views/tabs/tab-overview.php:124
-#: includes/Admin/views/unused-media-list.php:21
+#: includes/Admin/Menu.php:127
+#: includes/Admin/Menu.php:128
+#: includes/Admin/views/tabs/tab-overview.php:114
+#: includes/Admin/views/unused-media-list.php:16
 #: includes/functions.php:34
 msgid "Unused Media"
 msgstr ""
 
-#: includes/Admin/Menu.php:133
-#: includes/Admin/Menu.php:134
-#: includes/Admin/views/tabs/tab-duplicates.php:148
+#: includes/Admin/Menu.php:137
+#: includes/Admin/Menu.php:138
+#: includes/Admin/views/tabs/tab-duplicates.php:165
 #: includes/functions.php:42
 msgid "Duplicate Media"
 msgstr ""
 
-#: includes/Admin/Menu.php:142
-#: includes/Admin/Menu.php:143
-#: includes/functions.php:50
-msgid "External Storage"
-msgstr ""
-
-#: includes/Admin/Menu.php:151
-#: includes/Admin/Menu.php:152
-#: includes/functions.php:58
-msgid "Optimization"
-msgstr ""
-
-#: includes/Admin/Menu.php:160
-#: includes/Admin/Menu.php:161
-#: includes/functions.php:66
-msgid "Security & Logs"
-msgstr ""
-
-#: includes/Admin/Menu.php:169
-#: includes/Admin/Menu.php:170
-#: includes/functions.php:74
-msgid "Multi-site"
-msgstr ""
-
-#: includes/Admin/Menu.php:178
-#: includes/Admin/Menu.php:179
-#: includes/Admin/views/tabs/tab-documents.php:15
-#: includes/functions.php:83
-msgid "Documents"
-msgstr ""
-
 #: includes/Admin/Menu.php:188
-#: includes/Admin/Menu.php:189
-#: includes/Admin/views/tabs/tab-license.php:13
-#: includes/functions.php:104
-msgid "License"
-msgstr ""
-
-#: includes/Admin/Menu.php:268
 msgid "Cache cleared successfully."
 msgstr ""
 
-#: includes/Admin/Menu.php:276
-#: includes/Admin/Menu.php:318
-#: includes/Admin/Menu.php:366
-#: includes/Admin/Menu.php:497
-#: includes/Admin/Menu.php:519
-#: includes/Admin/Menu.php:551
+#: includes/Admin/Menu.php:196
+#: includes/Admin/Menu.php:238
+#: includes/Admin/Menu.php:286
+#: includes/Admin/Menu.php:417
+#: includes/Admin/Menu.php:439
+#: includes/Admin/Menu.php:471
 msgid "Unauthorized: You do not have permission to perform this action."
 msgstr ""
 
-#: includes/Admin/Menu.php:281
-#: includes/Admin/Menu.php:502
-#: includes/Admin/Menu.php:524
-#: includes/Admin/Menu.php:556
+#: includes/Admin/Menu.php:201
+#: includes/Admin/Menu.php:422
+#: includes/Admin/Menu.php:444
+#: includes/Admin/Menu.php:476
 msgid "Security check failed."
 msgstr ""
 
-#: includes/Admin/Menu.php:323
-#: includes/Admin/Menu.php:371
+#: includes/Admin/Menu.php:243
+#: includes/Admin/Menu.php:291
 msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
-#: includes/Admin/Menu.php:357
+#: includes/Admin/Menu.php:277
 msgid "Scan started."
 msgstr ""
 
-#: includes/Admin/Menu.php:412
+#: includes/Admin/Menu.php:332
 msgid "Scan completed."
 msgstr ""
 
-#: includes/Admin/Menu.php:511
+#: includes/Admin/Menu.php:431
 msgid "Progress cleared."
 msgstr ""
 
 #. translators: %d: number of unused media found!
-#: includes/Admin/Menu.php:540
+#: includes/Admin/Menu.php:460
 #, php-format
 msgid "%d unused image found"
 msgid_plural "%d unused media found!"
@@ -288,14 +232,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of items deleted
-#: includes/Admin/Menu.php:585
+#: includes/Admin/Menu.php:505
 #, php-format
 msgid "Successfully deleted %d unused media item."
 msgid_plural "Successfully deleted %d unused media items."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Menu.php:593
+#: includes/Admin/Menu.php:513
 msgid "No unused media items found or failed to delete."
 msgstr ""
 
@@ -312,7 +256,7 @@ msgid "Author"
 msgstr ""
 
 #: includes/Admin/Unused_Media_List.php:56
-#: includes/Admin/views/tabs/tab-duplicates.php:192
+#: includes/Admin/views/tabs/tab-duplicates.php:217
 msgid "Size"
 msgstr ""
 
@@ -339,6 +283,8 @@ msgid "File name:"
 msgstr ""
 
 #: includes/Admin/Unused_Media_List.php:1378
+#: includes/Admin/views/tabs/tab-duplicates.php:200
+#: includes/Admin/views/tabs/tab-duplicates.php:286
 msgid "Delete permanently"
 msgstr ""
 
@@ -348,432 +294,209 @@ msgstr ""
 msgid "%d media file(s) deleted successfully."
 msgstr ""
 
-#. translators: %s: Plugin version number.
+#. translators: %s: plugin version number
 #: includes/Admin/views/media-tracker.php:15
 #, php-format
-msgid "Version %s"
+msgid "Current Version: %s"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-documents.php:17
-msgid "Manage and track your document files."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:29
-msgid "Documentation"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:31
-msgid "Learn how to track media usage and clean up unused files in WordPress."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:35
-msgid "Read More"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:44
-msgid "Join Our Community"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:46
-msgid "Join our community to discuss features, share ideas, and get help from other users."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:49
-msgid "Join Now"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:58
-msgid "Show your love"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:60
-msgid "Enjoying Media Tracker? Please rate us on WordPress.org to help us grow."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:63
-msgid "Rate Us"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:71
-msgid "Video Tutorials"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:77
-#: includes/Admin/views/tabs/tab-documents.php:101
-msgid "Getting Started"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:87
-msgid "Getting Started with Media Tracker"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-documents.php:90
-msgid "Learn the basics of Media Tracker in 2 minutes. Watch our comprehensive guide to master file management."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-duplicates.php:115
-#: includes/Admin/views/tabs/tab-unused-media.php:56
+#: includes/Admin/views/tabs/tab-duplicates.php:132
+#: includes/Admin/views/tabs/tab-unused-media.php:51
 msgid "Screen Options"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-duplicates.php:128
-#: includes/Admin/views/tabs/tab-unused-media.php:69
+#: includes/Admin/views/tabs/tab-duplicates.php:145
+#: includes/Admin/views/tabs/tab-unused-media.php:64
 msgid "Number of items per page:"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-duplicates.php:133
-#: includes/Admin/views/tabs/tab-unused-media.php:74
+#: includes/Admin/views/tabs/tab-duplicates.php:150
+#: includes/Admin/views/tabs/tab-unused-media.php:69
 msgid "(1-999)"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-duplicates.php:139
-#: includes/Admin/views/tabs/tab-unused-media.php:80
+#: includes/Admin/views/tabs/tab-duplicates.php:156
+#: includes/Admin/views/tabs/tab-duplicates.php:202
+#: includes/Admin/views/tabs/tab-duplicates.php:288
+#: includes/Admin/views/tabs/tab-unused-media.php:75
 msgid "Apply"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-duplicates.php:150
+#: includes/Admin/views/tabs/tab-duplicates.php:167
 msgid "Same hash, probable duplicate images grouped together. Use delete to remove selected images."
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-duplicates.php:181
+#: includes/Admin/views/tabs/tab-duplicates.php:197
+#: includes/Admin/views/tabs/tab-duplicates.php:283
+msgid "Select bulk action"
+msgstr ""
+
+#: includes/Admin/views/tabs/tab-duplicates.php:199
+#: includes/Admin/views/tabs/tab-duplicates.php:285
+msgid "Bulk actions"
+msgstr ""
+
+#: includes/Admin/views/tabs/tab-duplicates.php:205
 msgid "Scan Duplicates"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-duplicates.php:190
+#: includes/Admin/views/tabs/tab-duplicates.php:215
 msgid "Thumbnail"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-duplicates.php:262
-msgid "Delete Selected"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-duplicates.php:269
+#: includes/Admin/views/tabs/tab-duplicates.php:296
 msgid "Duplicate images handler not available."
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-external-storage.php:18
-msgid "Cloud Storage & Automatic Offloading"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-external-storage.php:19
-msgid "Upgrade to Media Tracker Pro to automatically move and archive unused files to S3, Google Drive, or Dropbox."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-external-storage.php:21
-msgid "Connect Google Drive, S3, Dropbox"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-external-storage.php:22
-msgid "Auto-offload unused media"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-external-storage.php:23
-msgid "Archive old media automatically"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-external-storage.php:24
-msgid "Backup before permanent delete"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-external-storage.php:25
-msgid "Storage limit alerts"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-external-storage.php:26
-msgid "Restore from cloud anytime"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-license.php:16
-msgid "License management coming soon."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-multisite.php:18
-msgid "Multi-site Network Management"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-multisite.php:19
-msgid "Upgrade to Media Tracker Pro to manage and track media from multiple WordPress sites in one central dashboard."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-multisite.php:21
-msgid "Connect unlimited network sites"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-multisite.php:22
-msgid "Network-wide media tracking"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-multisite.php:23
-msgid "Cross-site duplicate detection"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-multisite.php:24
-msgid "Centralized storage overview"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-multisite.php:25
-msgid "Per-site cleanup rules"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-multisite.php:26
-msgid "Network admin controls"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-optimization.php:18
-msgid "Advanced Image Optimization"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-optimization.php:19
-msgid "Upgrade to Media Tracker Pro to access powerful optimization tools including compression, WebP conversion, and lazy loading."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-optimization.php:21
-msgid "Lossless image compression"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-optimization.php:22
-msgid "Automatic WebP conversion"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-optimization.php:23
-msgid "Smart lazy loading"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-optimization.php:24
-msgid "Bulk optimization queue"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-optimization.php:25
-msgid "Fallback for old browsers"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-optimization.php:26
-msgid "Quality control settings"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-overview.php:90
+#: includes/Admin/views/tabs/tab-overview.php:83
 msgid "Manage unused media, duplicate, optimization and cloud offload from a clean dashboard with Media Tracker."
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:100
+#: includes/Admin/views/tabs/tab-overview.php:93
 msgid "Media Usages Count"
 msgstr ""
 
-#. translators: %d: Number of used media files.
-#: includes/Admin/views/tabs/tab-overview.php:105
-#, php-format
-msgid "%d Used Files"
-msgstr ""
-
 #. translators: %s: Formatted file size (e.g. 1.5 MB).
-#: includes/Admin/views/tabs/tab-overview.php:112
+#: includes/Admin/views/tabs/tab-overview.php:102
 #, php-format
 msgid "Used Size: %s"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:116
+#: includes/Admin/views/tabs/tab-overview.php:106
 msgid "Refresh"
 msgstr ""
 
-#. translators: %d: Number of unused files.
-#: includes/Admin/views/tabs/tab-overview.php:129
-#, php-format
-msgid "%d Unused Files"
-msgstr ""
-
 #. translators: %s: Formatted file size (e.g. 1.5 MB).
-#: includes/Admin/views/tabs/tab-overview.php:137
+#: includes/Admin/views/tabs/tab-overview.php:124
 #, php-format
 msgid "Potential saving: %s"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:146
+#: includes/Admin/views/tabs/tab-overview.php:133
 msgid "Duplicates Found"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:151
+#: includes/Admin/views/tabs/tab-overview.php:138
 msgid "Scan Required"
 msgstr ""
 
-#. translators: %d: Number of duplicate files.
-#: includes/Admin/views/tabs/tab-overview.php:154
-#, php-format
-msgid "%d Duplicate Files"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-overview.php:159
+#: includes/Admin/views/tabs/tab-overview.php:145
 msgid "Based on file hash matching"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:166
+#: includes/Admin/views/tabs/tab-overview.php:152
 msgid "Total Media"
 msgstr ""
 
-#. translators: %d: Total number of media files.
-#: includes/Admin/views/tabs/tab-overview.php:171
-#, php-format
-msgid "%d Total Files"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-overview.php:175
+#: includes/Admin/views/tabs/tab-overview.php:158
 msgid "Total files in library"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:184
+#: includes/Admin/views/tabs/tab-overview.php:167
 msgid "Quick Actions"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:190
-#: includes/Admin/views/tabs/tab-overview.php:200
+#: includes/Admin/views/tabs/tab-overview.php:173
+#: includes/Admin/views/tabs/tab-overview.php:184
 msgid "Scan all content to find unused media files."
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:193
-#: includes/Admin/views/tabs/tab-overview.php:213
+#: includes/Admin/views/tabs/tab-overview.php:176
+#: includes/Admin/views/tabs/tab-overview.php:198
 msgid "Find"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:199
+#: includes/Admin/views/tabs/tab-overview.php:182
 msgid "Scan for Unused Media"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:203
+#: includes/Admin/views/tabs/tab-overview.php:188
 msgid "Scan"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:209
+#: includes/Admin/views/tabs/tab-overview.php:194
 msgid "Find Duplicates"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:210
+#: includes/Admin/views/tabs/tab-overview.php:195
 msgid "Detects duplicate images using file hash matching."
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:219
+#: includes/Admin/views/tabs/tab-overview.php:204
 msgid "Bulk Delete Unused"
 msgstr ""
 
 #. translators: %d: Number of unused files.
-#: includes/Admin/views/tabs/tab-overview.php:223
+#: includes/Admin/views/tabs/tab-overview.php:208
 #, php-format
 msgid "%d unused files found. Delete safely after backup."
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:228
+#: includes/Admin/views/tabs/tab-overview.php:213
 msgid "Delete"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:236
+#: includes/Admin/views/tabs/tab-overview.php:221
 msgid "Media Statistics"
 msgstr ""
 
-#. translators: %d: Number of files for a specific mime type.
-#: includes/Admin/views/tabs/tab-overview.php:258
-#, php-format
-msgid "%d files"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-overview.php:266
+#: includes/Admin/views/tabs/tab-overview.php:248
 msgid "No media files found yet."
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:276
+#: includes/Admin/views/tabs/tab-overview.php:258
 msgid "Most Used Media"
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-overview.php:328
+#: includes/Admin/views/tabs/tab-overview.php:310
 msgid "Loading usage statistics..."
 msgstr ""
 
-#: includes/Admin/views/tabs/tab-security.php:18
-msgid "Security & Activity Logs"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-security.php:19
-msgid "Upgrade to Media Tracker Pro for role-based permissions, activity logging, and complete audit trails for all sensitive actions."
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-security.php:21
-msgid "Role-based access control"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-security.php:22
-msgid "Full activity audit logs"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-security.php:23
-msgid "Bulk delete confirmation"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-security.php:24
-msgid "File whitelist protection"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-security.php:25
-msgid "Export logs to CSV"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-security.php:26
-msgid "User action tracking"
-msgstr ""
-
-#: includes/Admin/views/tabs/tab-unused-media.php:93
+#: includes/Admin/views/tabs/tab-unused-media.php:88
 msgid "Unused media list class not found."
 msgstr ""
 
-#: includes/Admin/views/unused-media-list.php:23
+#: includes/Admin/views/unused-media-list.php:19
 msgid "Detect media files not used anywhere on your site for safe cleanup."
 msgstr ""
 
-#: includes/Admin/views/unused-media-list.php:33
+#: includes/Admin/views/unused-media-list.php:29
 msgid "unused media found!"
 msgstr ""
 
-#: includes/Admin/views/unused-media-list.php:39
+#: includes/Admin/views/unused-media-list.php:35
 msgid "Scan status: Ready to scan..."
 msgstr ""
 
-#: includes/Assets.php:46
-msgid "Image hashes will be refreshed and all images will be re-scanned. Continue?"
-msgstr ""
-
-#: includes/Assets.php:47
-msgid "Re-scanning..."
-msgstr ""
-
-#: includes/Assets.php:48
-msgid "Error re-scanning images"
-msgstr ""
-
-#: includes/Assets.php:74
-#: includes/Assets.php:120
+#: includes/Assets.php:69
+#: includes/Assets.php:115
 msgid "Invalid nonce."
 msgstr ""
 
-#: includes/Assets.php:80
-#: includes/Assets.php:126
+#: includes/Assets.php:75
+#: includes/Assets.php:121
 msgid "You do not have permission to perform this action."
+msgstr ""
+
+#: includes/Assets.php:81
+#: includes/Assets.php:127
+msgid "Missing per page value."
 msgstr ""
 
 #: includes/Assets.php:86
 #: includes/Assets.php:132
-msgid "Missing per page value."
-msgstr ""
-
-#: includes/Assets.php:91
-#: includes/Assets.php:137
 msgid "Invalid per page value. Must be between 1 and 999."
 msgstr ""
 
-#: includes/Assets.php:99
-#: includes/Assets.php:106
-#: includes/Assets.php:145
-#: includes/Assets.php:152
+#: includes/Assets.php:94
+#: includes/Assets.php:101
+#: includes/Assets.php:140
+#: includes/Assets.php:147
 msgid "Settings saved successfully."
 msgstr ""
 
-#: includes/Assets.php:108
-#: includes/Assets.php:154
+#: includes/Assets.php:103
+#: includes/Assets.php:149
 msgid "Failed to save settings."
 msgstr ""
 
@@ -781,21 +504,21 @@ msgstr ""
 msgid "Every 5 Minutes"
 msgstr ""
 
-#: includes/functions.php:91
-msgid "Go Pro"
+#: includes/functions.php:54
+msgid "License"
 msgstr ""
 
 #. translators: %s template file path
-#: includes/functions.php:255
+#: includes/functions.php:205
 #, php-format
 msgid "%s does not exist."
 msgstr ""
 
-#: includes/functions.php:453
+#: includes/functions.php:403
 msgid "This feature is available in Media Tracker Pro."
 msgstr ""
 
-#: includes/functions.php:472
+#: includes/functions.php:422
 msgid "Upgrade to Media Tracker Pro"
 msgstr ""
 
@@ -819,27 +542,40 @@ msgstr ""
 msgid "Submit & Deactivate"
 msgstr ""
 
-#: assets/src/js/mt-admin.js:222
-#: assets/src/js/mt-admin.js:323
+#: assets/src/js/mt-admin.js:179
+#: assets/src/js/mt-admin.js:280
 msgid "Applying..."
 msgstr ""
 
-#: assets/src/js/mt-admin.js:238
-#: assets/src/js/mt-admin.js:339
+#: assets/src/js/mt-admin.js:195
+#: assets/src/js/mt-admin.js:296
 msgid "Settings unchanged"
 msgstr ""
 
-#: assets/src/js/mt-admin.js:254
-#: assets/src/js/mt-admin.js:355
+#: assets/src/js/mt-admin.js:211
+#: assets/src/js/mt-admin.js:312
 msgid "Applied!"
 msgstr ""
 
-#: assets/src/js/mt-admin.js:267
-#: assets/src/js/mt-admin.js:368
+#: assets/src/js/mt-admin.js:224
+#: assets/src/js/mt-admin.js:325
 msgid "Error saving settings. Please try again."
 msgstr ""
 
-#: assets/src/js/mt-admin.js:288
-#: assets/src/js/mt-admin.js:389
+#: assets/src/js/mt-admin.js:245
+#: assets/src/js/mt-admin.js:346
 msgid "Network error. Please check your connection and try again."
+msgstr ""
+
+#: assets/src/js/tab.js:362
+msgid "Refreshing..."
+msgstr ""
+
+#: assets/src/js/tab.js:385
+msgid "Refreshed!"
+msgstr ""
+
+#: assets/src/js/tab.js:392
+#: assets/src/js/tab.js:401
+msgid "Error"
 msgstr ""

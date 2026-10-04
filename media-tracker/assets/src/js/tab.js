@@ -104,7 +104,7 @@
 
             if (!initial) {
                 var search = url.search || '';
-                var knownTabs = ['overview', 'unused-media', 'duplicates', 'external-storage', 'optimization', 'security', 'multisite', 'settings', 'license'];
+                var knownTabs = ['overview', 'unused-media', 'duplicates'];
                 for (var i = 0; i < knownTabs.length; i++) {
                     if (search.indexOf(knownTabs[i]) !== -1) {
                         initial = knownTabs[i];
@@ -151,19 +151,6 @@
         connectionModalCancel.addEventListener('click', closeConnectionModal);
     }
 
-    // if (connectionModalTest) {
-    //     connectionModalTest.addEventListener('click', function() {
-    //         alert('Test connection successful (demo).');
-    //     });
-    // }
-
-    // if (connectionModalSave) {
-    //     connectionModalSave.addEventListener('click', function() {
-    //         alert('Connection saved (demo).');
-    //         closeConnectionModal();
-    //     });
-    // }
-
     // Duplicate Media Management
     $(function() {
         // Select all checkbox
@@ -200,9 +187,14 @@
             });
         }
 
-        // Delete selected button
-        $('#mt-dup-delete-selected').on('click', function(e) {
+        // Bulk actions Apply buttons (top + bottom)
+        $('#doaction, #doaction2').on('click', function(e) {
             e.preventDefault();
+            var isBottom = $(this).attr('id') === 'doaction2';
+            var action = isBottom ? $('#bulk-action-selector-bottom').val() : $('#bulk-action-selector-top').val();
+            if (action !== 'delete') {
+                return;
+            }
             var ids = [];
             $('#mt-duplicate-form').find('tbody input[type="checkbox"]:checked').each(function() {
                 ids.push($(this).val());
@@ -234,7 +226,7 @@
             var originalText = btn.html();
             btn.data('running', true).prop('disabled', true);
             // Add spinner as requested
-            btn.html('<span class="spinner is-active" style="float:none; margin:0 5px 0 0; visibility:visible;"></span> Scanning...');
+            btn.html('<span class="spinner is-active mt-spinner-inline"></span> Scanning...');
 
             $('.mt-dup-wrap').show();
 
@@ -282,7 +274,7 @@
                         // Enhanced status message with ETA
                         var statusText = 'Scan status: Scanning... (' + pct + '%) - ' + data.processed + ' / ' + data.total + ' images';
                         if (data.eta && data.eta !== 'Complete!') {
-                            statusText += ' <span style="color:#666;">(ETA: ' + data.eta + ')</span>';
+                            statusText += ' <span class="mt-eta-text">(ETA: ' + data.eta + ')</span>';
                         }
                         status.html(statusText);
 
@@ -323,6 +315,96 @@
                     });
                 }, 3000);
             }
+        });
+    });
+
+    // Overview (Dashboard) page — moved from includes/Admin/views/tabs/tab-overview.php
+    $(function() {
+        // i18n helper (same fallback pattern as mt-admin.js)
+        var __ = window.wp && window.wp.i18n && window.wp.i18n.__
+            ? window.wp.i18n.__
+            : function(text, domain) {
+                return text;
+            };
+
+        // Most Used Media loader (only when stats are not cached)
+        if ($('#media-tracker-loading-stats').length) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'media_tracker_get_most_used'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#media-tracker-most-used-container').html(response.data.html);
+                    } else {
+                        $('#media-tracker-most-used-container').html('<p class="mt-empty-state">' + (response.data || 'Error loading stats.') + '</p>');
+                    }
+                },
+                error: function() {
+                    $('#media-tracker-most-used-container').html('<p class="mt-empty-state">Error loading stats.</p>');
+                }
+            });
+        }
+
+        // Refresh stats button handler
+        $('#media-tracker-refresh-stats').on('click', function(e) {
+            e.preventDefault();
+
+            var $button = $(this);
+            var $icon = $button.find('.dashicons-update');
+            var originalText = $button.html();
+
+            // Show loading state
+            $button.prop('disabled', true);
+            $icon.addClass('spin-animation');
+            $button.html('<span class="spinner is-active mt-spinner-inline"></span> ' + __('Refreshing...', 'media-tracker'));
+
+            // AJAX request to refresh stats
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'media_tracker_refresh_used_stats',
+                    nonce: $button.data('nonce')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update the count
+                        var countElement = $button.closest('.card').find('.value');
+                        var formattedCount = response.data.used_count;
+                        countElement.text(formattedCount);
+
+                        // Update the size
+                        var sizeElement = $button.closest('.card').find('span').last();
+                        var currentSizeText = sizeElement.text().split(':')[0];
+                        sizeElement.html(currentSizeText + ': ' + response.data.used_size_formatted);
+
+                        // Show success message
+                        $button.html('<i class="dashicons dashicons-yes mt-btn-icon"></i> ' + __('Refreshed!', 'media-tracker'));
+                        setTimeout(function() {
+                            $button.html(originalText);
+                            $button.prop('disabled', false);
+                        }, 2000);
+                    } else {
+                        // Show error
+                        $button.html('<i class="dashicons dashicons-no mt-btn-icon"></i> ' + __('Error', 'media-tracker'));
+                        setTimeout(function() {
+                            $button.html(originalText);
+                            $button.prop('disabled', false);
+                        }, 2000);
+                    }
+                },
+                error: function() {
+                    // Show error
+                    $button.html('<i class="dashicons dashicons-no mt-btn-icon"></i> ' + __('Error', 'media-tracker'));
+                    setTimeout(function() {
+                        $button.html(originalText);
+                        $button.prop('disabled', false);
+                    }, 2000);
+                }
+            });
         });
     });
 

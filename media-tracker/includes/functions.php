@@ -27,7 +27,7 @@ function media_tracker_get_menu_items() {
             'icon'    => 'dashicons dashicons-admin-home',
             'badge'   => '',
             'is_link' => true,
-            'url'     => admin_url( 'upload.php?page=media-tracker-overview' ),
+            'url'     => admin_url( 'admin.php?page=media-tracker' ),
             'active'  => false,
         ),
         'unused-media' => array(
@@ -35,7 +35,7 @@ function media_tracker_get_menu_items() {
             'icon'    => 'dashicons dashicons-format-image',
             'badge'   => '',
             'is_link' => true,
-            'url'     => admin_url( 'upload.php?page=media-tracker-unused-media' ),
+            'url'     => admin_url( 'admin.php?page=media-tracker-unused-media' ),
             'active'  => false,
         ),
         'duplicates' => array(
@@ -43,59 +43,9 @@ function media_tracker_get_menu_items() {
             'icon'    => 'dashicons dashicons-images-alt',
             'badge'   => '',
             'is_link' => true,
-            'url'     => admin_url( 'upload.php?page=media-tracker-duplicates' ),
+            'url'     => admin_url( 'admin.php?page=media-tracker-duplicates' ),
             'active'  => false,
-        ),
-        'external-storage' => array(
-            'label'   => __( 'External Storage', 'media-tracker' ),
-            'icon'    => 'dashicons dashicons-cloud-upload',
-            'badge'   => '',
-            'is_link' => true,
-            'url'     => admin_url( 'upload.php?page=media-tracker-external-storage' ),
-            'active'  => false,
-        ),
-        'optimization' => array(
-            'label'   => __( 'Optimization', 'media-tracker' ),
-            'icon'    => 'dashicons dashicons-performance',
-            'badge'   => '',
-            'is_link' => true,
-            'url'     => admin_url( 'upload.php?page=media-tracker-optimization' ),
-            'active'  => false,
-        ),
-        'security' => array(
-            'label'   => __( 'Security & Logs', 'media-tracker' ),
-            'icon'    => 'dashicons dashicons-lock',
-            'badge'   => '',
-            'is_link' => true,
-            'url'     => admin_url( 'upload.php?page=media-tracker-security' ),
-            'active'  => false,
-        ),
-        'multisite' => array(
-            'label'   => __( 'Multi-site', 'media-tracker' ),
-            'icon'    => 'dashicons dashicons-admin-multisite',
-            'badge'   => '',
-            'is_link' => true,
-            'url'     => admin_url( 'upload.php?page=media-tracker-multisite' ),
-            'active'  => false,
-            'class'   => 'multisite'
-        ),
-        'documents' => array(
-            'label'   => __( 'Documents', 'media-tracker' ),
-            'icon'    => 'dashicons dashicons-media-document',
-            'badge'   => '',
-            'is_link' => true,
-            'url'     => admin_url( 'upload.php?page=media-tracker-documents' ),
-            'active'  => false,
-        ),
-        'go-pro' => array(
-            'label'   => __( 'Go Pro', 'media-tracker' ),
-            'icon'    => 'dashicons dashicons-star-filled',
-            'badge'   => '<i class="dashicons dashicons-arrow-right-alt"></i>',
-            'is_link' => true,
-            'url'     => 'http://mediatracker.thebitcraft.com',
-            'target'  => '_blank',
-            'active'  => false,
-        ),
+        )
     );
 
     // Add license menu item if Pro is active
@@ -105,7 +55,7 @@ function media_tracker_get_menu_items() {
             'icon'    => 'dashicons dashicons-admin-network',
             'badge'   => '',
             'is_link' => true,
-            'url'     => admin_url( 'upload.php?page=media-tracker-license' ),
+            'url'     => admin_url( 'admin.php?page=media-tracker-license' ),
             'active'  => false,
         );
     }
@@ -157,7 +107,7 @@ function media_tracker_get_current_tab() {
 
     // If still empty, check if tab name exists in URL query string (backward compatibility)
     if ( empty( $tab ) ) {
-        $known_tabs = array( 'overview', 'unused-media', 'duplicates', 'external-storage', 'optimization', 'security', 'multisite', 'license' );
+        $known_tabs = array( 'overview', 'unused-media', 'duplicates' );
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification is not required for reading the query string.
         $query_string = isset( $_SERVER['QUERY_STRING'] ) ? sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) : '';
 
@@ -169,8 +119,8 @@ function media_tracker_get_current_tab() {
         }
     }
 
-    // Default to overview if no valid tab found
-    if ( empty( $tab ) ) {
+    // Default to overview if no valid tab found (removed tabs fall back too)
+    if ( empty( $tab ) || ! in_array( $tab, array( 'overview', 'unused-media', 'duplicates' ), true ) ) {
         $tab = 'overview';
     }
 

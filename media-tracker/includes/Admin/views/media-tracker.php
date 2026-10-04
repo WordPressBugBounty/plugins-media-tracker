@@ -1,21 +1,23 @@
 <?php defined('ABSPATH') || exit; ?>
 
 <div class="media-tracker-layout">
-    <aside>
-        <div class="logo">
-            <img src="<?php echo esc_url(MEDIA_TRACKER_ASSETS); ?>/dist/images/logo.svg" alt="MediaTracker">
-            <?php esc_html_e('Media Tracker', 'media-tracker'); ?>
+    <header class="mt-settings-header">
+        <div class="mt-header-left">
+            <div class="mt-admin-header">
+                <img src="<?php echo esc_url( MEDIA_TRACKER_URL . '/assets/src/images/main-logo.svg' ); ?>" alt="">
+            </div>
         </div>
-        <nav>
-            <?php media_tracker_render_menu(); ?>
-        </nav>
-        <div class="version">
-            <?php
-            /* translators: %s: Plugin version number. */
-            echo esc_html(sprintf(__('Version %s', 'media-tracker'), MEDIA_TRACKER_VERSION));
-            ?>
+
+        <div class="mt-header-right">
+            <span>
+                <?php
+                    // translators: %s: plugin version number
+                    $media_tracker_version_text = esc_html__( 'Current Version: %s', 'media-tracker' );
+                    echo wp_kses_post( sprintf( $media_tracker_version_text, '<strong>' . esc_html( MEDIA_TRACKER_VERSION ) . '</strong>' ) );
+                ?>
+            </span>
         </div>
-    </aside>
+    </header>
 
     <main>
         <?php
@@ -35,6 +37,5 @@
 
         echo '</div>';
         ?>
-
     </main>
 </div>

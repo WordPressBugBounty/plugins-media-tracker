@@ -21,94 +21,11 @@ class Duplicate_Images {
      */
     public function __construct() {
         // Hooks to add filters and handle processing
-        add_action('restrict_manage_posts', array($this, 'add_custom_media_filter'));
-        add_action('pre_get_posts', array($this, 'filter_media_library_items'));
         add_action('media_tracker_batch_process', array($this, 'process_image_hashes_batch'));
         add_action('wp_ajax_get_duplicate_images', array($this, 'get_duplicate_images_via_ajax'));
         add_action('wp_ajax_reset_duplicate_hashes', array($this, 'reset_duplicate_hashes_via_ajax'));
         add_action('wp_ajax_mt_process_batch', array($this, 'process_batch_via_ajax'));
         add_action('wp_ajax_mt_delete_duplicate_images', array($this, 'delete_duplicate_images_via_ajax'));
-    }
-
-    /**
-     * Adds a custom filter dropdown to the Media Library.
-     */
-    public function add_custom_media_filter() {
-        $screen = get_current_screen();
-
-        if ('upload' !== $screen->id) {
-            return;
-        }
-
-        $filter_value = isset($_GET['media_duplicate_filter']) ? sanitize_text_field(wp_unslash($_GET['media_duplicate_filter'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        ?>
-        <label for="media-duplicate-filter" class="media-duplicate-filter-label" style="margin-right:6px; display:inline-flex; align-items:center; gap:4px;">
-            <span class="dashicons dashicons-images-alt2" aria-hidden="true"></span>
-            <?php esc_html_e('Duplicates', 'media-tracker'); ?>
-        </label>
-        <select name="media_duplicate_filter" id="media-duplicate-filter" aria-label="<?php esc_attr_e('Duplicate images filter', 'media-tracker'); ?>" aria-describedby="media-duplicate-filter-help">
-            <option value=""><?php esc_html_e('All Media', 'media-tracker'); ?></option>
-            <option value="duplicates" <?php selected($filter_value, 'duplicates'); ?>>
-                <?php esc_html_e('Show Duplicate Images', 'media-tracker'); ?>
-            </option>
-        </select>
-        <button type="button" id="rescan-duplicates-btn" class="button" style="margin-left:8px;">
-            <span class="dashicons dashicons-update-alt" style="vertical-align:middle;"></span>
-            <?php esc_html_e('Re-scan', 'media-tracker'); ?>
-        </button>
-        <span id="rescan-status" style="margin-left:8px; display:none;"></span>
-        <?php
-    }
-
-    /**
-     * Filters Media Library items to show only duplicate images if the custom filter is set.
-     *
-     * @param WP_Query $query The current WP_Query instance.
-     */
-    public function filter_media_library_items($query) {
-        global $pagenow;
-
-        if ('upload.php' === $pagenow && isset($_GET['media_duplicate_filter']) && 'duplicates' === $_GET['media_duplicate_filter']) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            // Security: Verify request comes from admin
-            // Nonce verification handled by WordPress's own media library screen processing
-            // Additional capability check is performed by WordPress before this hook runs
-            // Fast path: use SQL aggregation over stored hashes
-            $hashes = $this->get_duplicate_hashes_by_sql();
-
-            // If no duplicates yet and many attachments lack hashes, trigger a quick batch
-            // Manual scan only: disable auto-trigger
-            /*
-            if (empty($hashes) && $this->count_unhashed_attachments() > 0) {
-                // Run one batch immediately to bootstrap hashes; then re-check
-                do_action('media_tracker_batch_process');
-                $hashes = $this->get_duplicate_hashes_by_sql();
-            }
-            */
-
-            $duplicate_ids = array();
-            $ids_with_hashes = array();
-
-            foreach ($hashes as $hash => $ids) {
-                if (count($ids) > 1) {
-                    $duplicate_ids = array_merge($duplicate_ids, $ids);
-                    foreach ($ids as $id) {
-                        $ids_with_hashes[$id] = $hash;
-                    }
-                }
-            }
-
-            if (!empty($duplicate_ids)) {
-                usort($duplicate_ids, function($a, $b) use ($ids_with_hashes) {
-                    return strcmp($ids_with_hashes[$a], $ids_with_hashes[$b]);
-                });
-
-                $query->set('post__in', $duplicate_ids);
-                $query->set('orderby', 'post__in');
-                // Remove posts_per_page = -1 to enable default WordPress pagination
-            } else {
-                $query->set('post__in', array(0));
-            }
-        }
     }
 
     /**
@@ -308,6 +225,11 @@ class Duplicate_Images {
             $hash = '';
             foreach ($pixels as $pixel) {
                 $hash .= ($pixel > $average) ? '1' : '0';
+            }
+
+            // Uniform/near-uniform patterns cannot reliably identify duplicates.
+            if ($this->is_uninformative_hash($hash)) {
+                return '';
             }
 
             return $hash;
@@ -532,6 +454,9 @@ class Duplicate_Images {
                 AND p.post_type = 'attachment'
                 AND p.post_mime_type LIKE %s
                 AND pm.meta_value != ''
+                AND pm.meta_value != REPEAT(LEFT(pm.meta_value, 1), CHAR_LENGTH(pm.meta_value))
+                AND NOT ( CHAR_LENGTH(pm.meta_value) = 64 AND ( CHAR_LENGTH(pm.meta_value) - CHAR_LENGTH(REPLACE(pm.meta_value, '1', '')) ) < 8 )
+                AND NOT ( CHAR_LENGTH(pm.meta_value) = 64 AND ( CHAR_LENGTH(pm.meta_value) - CHAR_LENGTH(REPLACE(pm.meta_value, '0', '')) ) < 8 )
                 GROUP BY pm.meta_value
                 HAVING count > 1",
                 '_media_tracker_hash',
@@ -597,8 +522,8 @@ class Duplicate_Images {
                 continue;
             }
             $hash = (string) $row->hash;
-            // Skip empty hashes (double check)
-            if (empty($hash)) {
+            // Skip uninformative hashes (uniform/near-uniform patterns cause false positives).
+            if ($this->is_uninformative_hash($hash)) {
                 continue;
             }
             $id = (int) $row->post_id;
@@ -608,11 +533,56 @@ class Duplicate_Images {
             $hashes[$hash][] = $id;
         }
 
+        // Keep only real groups of 2+ DISTINCT attachments.
+        foreach ($hashes as $hash => $ids) {
+            $ids = array_values(array_unique(array_map('intval', $ids)));
+            if (count($ids) < 2) {
+                unset($hashes[$hash]);
+                continue;
+            }
+            $hashes[$hash] = $ids;
+        }
+
         // Cache for 5 minutes (300 seconds) to balance performance and freshness
         // Cache will be automatically cleared when scan completes or images are deleted
         set_transient('media_tracker_duplicate_hashes_cache', $hashes, 5 * MINUTE_IN_SECONDS);
 
         return $hashes;
+    }
+
+    /**
+     * Detect perceptual hashes that carry no reliable information.
+     *
+     * The 64-bit average-threshold hash collapses uniform or low-detail
+     * images (white logos, favicons, plain banners) into identical patterns
+     * such as all-zeros. Grouping those would list unrelated images as
+     * duplicates, so they are excluded from duplicate detection.
+     *
+     * @param string $hash Perceptual hash.
+     * @return bool True when the hash must not be used for grouping.
+     */
+    private function is_uninformative_hash( $hash ) {
+        $hash = (string) $hash;
+
+        if ('' === $hash) {
+            return true;
+        }
+
+        // All identical characters (all-zeros / all-ones / any repeated char).
+        if (preg_match('/^(.)\1*$/', $hash)) {
+            return true;
+        }
+
+        if (64 === strlen($hash) && preg_match('/^[01]+$/', $hash)) {
+            $ones = substr_count($hash, '1');
+            $zeros = 64 - $ones;
+            // Nearly uniform bit patterns (< 12.5% minority bits) are unreliable.
+            if ($ones < 8 || $zeros < 8) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -641,27 +611,8 @@ class Duplicate_Images {
         return $count;
     }
     // Add a new helper that aggregates hashes across the entire library
-    private function get_all_duplicate_hashes($batch_size = 300) {
-        // Strictly use existing database hashes.
-        // Never generate new hashes here. Hash generation is now exclusively handled
-        // by the manual scan process (reset_duplicate_hashes_via_ajax -> batch process).
-
-        // Check transient cache first for better performance
-        $cached_hashes = get_transient('media_tracker_duplicate_hashes_cache');
-        if (false !== $cached_hashes) {
-            return $cached_hashes;
-        }
-
-        $hashes = $this->get_duplicate_hashes_by_sql();
-
-        // Cache for 1 hour (3600 seconds) to improve performance
-        // Cache will be automatically cleared when:
-        // - New images are scanned
-        // - Duplicate images are deleted
-        // - Manual rescan is triggered
-        set_transient('media_tracker_duplicate_hashes_cache', $hashes, HOUR_IN_SECONDS);
-
-        return $hashes;
+    public function get_duplicate_groups() {
+        return $this->get_duplicate_hashes_by_sql();
     }
 
     /**

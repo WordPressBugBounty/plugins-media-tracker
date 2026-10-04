@@ -55,7 +55,7 @@ class PluginMeta
     {
         $settings_link = sprintf(
             '<a href="%s">%s</a>',
-            admin_url('upload.php?page=media-tracker'),
+            admin_url('admin.php?page=media-tracker'),
             __('Settings', 'media-tracker')
         );
 
