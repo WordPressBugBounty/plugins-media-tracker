@@ -417,7 +417,9 @@ jQuery(document).ready(function($) {
             label = label || 'Scan Unused Media';
             var $newBtn = $('<button/>', { id: 'run-media-scan', class: 'button button-primary', text: label });
             var $topBulk = $('.tablenav.top .bulkactions');
-            if ($topBulk.length) {
+            // WP core adds class "hidden" to .bulkactions when the list table has no
+            // items (e.g. first visit before a scan). Only inject into it when visible.
+            if ($topBulk.length && !$topBulk.hasClass('hidden')) {
                 $newBtn.css({ marginLeft: '8px', marginTop: '0' });
                 $topBulk.append($newBtn);
                 $('.media-scan-controls').hide();
@@ -445,17 +447,21 @@ jQuery(document).ready(function($) {
             var $btn = $('#run-media-scan').first();
             var $topApply = $('.tablenav.top .bulkactions #doaction');
             var $topBulk = $('.tablenav.top .bulkactions');
-            if ($btn.length && $topApply.length) {
+            if ($btn.length && $topApply.length && !$topBulk.hasClass('hidden')) {
                 $btn.detach().css({ marginLeft: '8px', marginTop: '0' });
                 $btn.insertAfter($topApply);
                 $('.media-scan-controls').hide();
-            } else if ($btn.length && $topBulk.length) {
+            } else if ($btn.length && $topBulk.length && !$topBulk.hasClass('hidden')) {
                 $btn.detach().css({ marginLeft: '8px', marginTop: '0' });
                 $topBulk.append($btn);
                 $('.media-scan-controls').hide();
             } else {
-                // No bulkactions found (no items), use fallback container
-                $('.media-scan-controls').show().empty().append($btn);
+                // No visible bulkactions (no items), use fallback container
+                $('.media-scan-controls').show().append($btn.detach());
+                var $removeAll = $('#remove-all-unused-media');
+                if ($removeAll.length) {
+                    $btn.after($removeAll.detach());
+                }
             }
         }
         $(function(){ repositionScanButton(); });
@@ -525,9 +531,9 @@ jQuery(document).ready(function($) {
                     $('#media-scan-progress-text').html('Scan status: ' + currentStepName + ' (' + Math.round(clientProgress) + '%)');
                 }
 
-                // Fallback: if scan appears stalled at start, trigger synchronous scan
+                // Fallback: trigger synchronous scan if stalled at start or stale mid-scan
                 if (!syncTriggered) {
-                    if ((d.step <= 1) && (pct <= 20)) {
+                    if (d.stale || ((d.step <= 1) && (pct <= 20))) {
                         stuckChecks++;
                         if (stuckChecks >= 6) { // Changed from 3 to 6 (now ~3s at 500ms interval)
                             syncTriggered = true;

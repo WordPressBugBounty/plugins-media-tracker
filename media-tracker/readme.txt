@@ -4,7 +4,7 @@ Tags: tracker, unused, media cleaner, duplicate, optimizer
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,6 @@ Media Tracker is a WordPress plugin to find and remove unused media files, manag
 
 == Description ==
 Media Tracker is a powerful WordPress plugin designed to help you identify and remove unused media files, manage duplicate images, and streamline your media library for better site performance and storage efficiency. Boost your WordPress site’s speed and organization with Media Tracker, the ultimate solution for managing and optimizing media files. Effortlessly track, organize, and clean up unused images to maintain an efficient and clutter-free media library. With Media Tracker, you can easily locate where each image is used across posts, pages, and custom post types, enhancing your website's performance and user experience.
-
 
 ## Features
 
@@ -77,6 +76,12 @@ A. Found a bug? Please let us know by posting on the support section of this plu
 5. Documentations
 
 == Changelog ==
+= 1.4.1 [07/10/2026] =
+* Performance: Unused media scan is now much faster on large sites — attachment URL to post ID lookups rewritten from one database query per file (O(n²)) to a single batched query (up to 500 URLs per query)
+* Fixed: Unused Media page no longer shows everything hidden on first visit — the "Scan Unused Media" and "Remove all unused media" buttons are now always visible, even before the first scan
+* Fixed: Scan progress can no longer hang at 99% — if the background scan process dies (host timeout, disabled cron), the scan is automatically re-scheduled and closes gracefully if it cannot continue
+* Fixed: Duplicate media footer action buttons now display white icons correctly
+
 = 1.4.0 [05/10/2026] =
 * New: Media Tracker now has its own top-level admin menu (no longer under the Media menu)
 * Enhanced: Complete design update for a cleaner, unified admin interface

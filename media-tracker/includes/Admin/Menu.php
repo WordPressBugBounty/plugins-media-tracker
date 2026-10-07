@@ -190,6 +190,11 @@ class Menu {
 
     /**
      * Handle AJAX request to get media scan progress.
+     *
+     * Also acts as a watchdog: if the background scan process dies (host timeout,
+     * disabled cron, fatal error), the progress transient stops receiving updates.
+     * In that case the scan is re-scheduled a limited number of times; if it still
+     * cannot proceed, the scan is closed so the UI never hangs at 99% forever.
      */
     public function handle_get_scan_progress() {
         if ( ! current_user_can( 'manage_options' ) ) {
@@ -201,29 +206,81 @@ class Menu {
             wp_send_json_error( array( 'message' => __( 'Security check failed.', 'media-tracker' ) ), 403 );
         }
 
-        $progress_key = 'media_scan_progress_' . get_current_user_id();
-        $progress = get_transient( $progress_key );
+        $user_id      = get_current_user_id();
+        $progress_key = 'media_scan_progress_' . $user_id;
+        $progress     = get_transient( $progress_key );
 
         if ( ! $progress || ! is_array( $progress ) ) {
             wp_send_json_success( array(
                 'step' => 0,
-                'total_steps' => 6,
+                'total_steps' => 20,
                 'current_step' => 'Ready to scan...',
-                'percentage' => 0
-            ) );
-        } else {
-            $step = isset( $progress['step'] ) ? (int) $progress['step'] : 0;
-            $total = isset( $progress['total_steps'] ) ? (int) $progress['total_steps'] : 6;
-            $current = isset( $progress['current_step'] ) ? $progress['current_step'] : 'Starting...';
-
-            $percentage = $total > 0 ? round( ( $step / $total ) * 100 ) : 0;
-            wp_send_json_success( array(
-                'step' => $step,
-                'total_steps' => $total,
-                'current_step' => $current,
-                'percentage' => $percentage
+                'percentage' => 0,
+                'stale' => false
             ) );
         }
+
+        $step    = isset( $progress['step'] ) ? (int) $progress['step'] : 0;
+        $total   = isset( $progress['total_steps'] ) ? (int) $progress['total_steps'] : 20;
+        $current = isset( $progress['current_step'] ) ? $progress['current_step'] : 'Starting...';
+
+        $is_stale = false;
+
+        // Watchdog: only relevant while the scan is still running.
+        if ( $step < $total ) {
+            $last = isset( $progress['last_update'] ) ? (int) $progress['last_update'] : 0;
+
+            if ( $last <= 0 ) {
+                // Progress written by an older version — start measuring from now.
+                $progress['last_update'] = time();
+                set_transient( $progress_key, $progress, 1800 );
+            } elseif ( ( time() - $last ) > 60 ) {
+                $is_stale = true;
+                $revives  = isset( $progress['revives'] ) ? (int) $progress['revives'] : 0;
+
+                if ( $revives < 3 ) {
+                    // The scan process likely died — re-schedule it.
+                    $progress['revives']     = $revives + 1;
+                    $progress['last_update'] = time();
+                    set_transient( $progress_key, $progress, 1800 );
+
+                    // Unique args bypass the duplicate-event guard so a dead run can be re-spawned.
+                    wp_schedule_single_event( time() + 2, 'media_tracker_run_media_scan_bg', array( $user_id, mt_rand() ) );
+
+                    if ( ! function_exists( 'spawn_cron' ) ) {
+                        require_once ABSPATH . 'wp-includes/cron.php';
+                    }
+                    if ( function_exists( 'spawn_cron' ) ) {
+                        spawn_cron();
+                    }
+
+                    $is_stale = false; // Give the revived process a fresh window.
+                } else {
+                    // Recovery exhausted — close the scan so the UI does not hang at 99% forever.
+                    $progress['step']         = $total;
+                    $progress['current_step'] = 'Scan interrupted. Please run the scan again.';
+                    $progress['last_update']  = time();
+                    set_transient( $progress_key, $progress, 1800 );
+
+                    $step     = $total;
+                    $current  = $progress['current_step'];
+                    $is_stale = false;
+                }
+            } elseif ( isset( $progress['revives'] ) ) {
+                // Process is alive again — reset the revive counter.
+                unset( $progress['revives'] );
+                set_transient( $progress_key, $progress, 1800 );
+            }
+        }
+
+        $percentage = $total > 0 ? round( ( $step / $total ) * 100 ) : 0;
+        wp_send_json_success( array(
+            'step' => $step,
+            'total_steps' => $total,
+            'current_step' => $current,
+            'percentage' => $percentage,
+            'stale' => $is_stale
+        ) );
     }
 
     /**
@@ -259,7 +316,9 @@ class Menu {
                 'total_steps' => 20, // Updated to match new step count
                 'current_step' => 'Starting scan...',
                 'used_ids' => array(),
-                'batch_offset' => array()
+                'batch_offset' => array(),
+                'last_update' => time(),
+                'revives' => 0
             ), 1800 );
 
             // Schedule the background scan (runs via WP-Cron)
@@ -294,13 +353,27 @@ class Menu {
         $user_id = get_current_user_id();
         $progress_key = 'media_scan_progress_' . $user_id;
 
+        // Refuse to double-run when a background scan is actively making progress.
+        $existing = get_transient( $progress_key );
+        if ( $existing && is_array( $existing )
+            && isset( $existing['step'], $existing['total_steps'] )
+            && (int) $existing['step'] > 1
+            && (int) $existing['step'] < (int) $existing['total_steps']
+            && isset( $existing['last_update'] )
+            && ( time() - (int) $existing['last_update'] ) <= 60
+        ) {
+            wp_send_json_success( array( 'message' => __( 'Scan already in progress.', 'media-tracker' ) ) );
+        }
+
         // Initialize progress to visible state
         $progress = array(
             'step' => 0,
             'total_steps' => 20, // Updated to match new step count
             'current_step' => 'Starting scan...',
             'used_ids' => array(),
-            'batch_offset' => array()
+            'batch_offset' => array(),
+            'last_update' => time(),
+            'revives' => 0
         );
         set_transient( $progress_key, $progress, 1800 );
 
@@ -379,6 +452,7 @@ class Menu {
         $list = new Unused_Media_List( '', null );
 
         $progress['current_step'] = 'Scanning...';
+        $progress['last_update'] = time();
         set_transient( $progress_key, $progress, 1800 );
 
         if ( method_exists( $list, 'force_clear_cache' ) ) {
@@ -403,7 +477,8 @@ class Menu {
                 set_transient( $progress_key, array(
                     'step' => $updated_progress['total_steps'],
                     'total_steps' => $updated_progress['total_steps'],
-                    'current_step' => 'Scan complete'
+                    'current_step' => 'Scan complete',
+                    'last_update' => time()
                 ), 1800 );
             }
         }
@@ -427,6 +502,7 @@ class Menu {
 
         // Also clear the dashboard stats cache so the overview tab reflects the new scan results
         delete_transient( 'media_tracker_dashboard_stats_v6' );
+        delete_transient( 'media_tracker_dashboard_stats_v8' );
 
         wp_send_json_success( array( 'message' => __( 'Progress cleared.', 'media-tracker' ) ) );
     }

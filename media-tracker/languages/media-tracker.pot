@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Media Tracker 1.4.0\n"
+"Project-Id-Version: Media Tracker 1.4.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/media-tracker\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-04T15:59:05+00:00\n"
+"POT-Creation-Date: 2026-10-07T15:50:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: media-tracker\n"
@@ -190,41 +190,45 @@ msgstr ""
 msgid "Cache cleared successfully."
 msgstr ""
 
-#: includes/Admin/Menu.php:196
-#: includes/Admin/Menu.php:238
-#: includes/Admin/Menu.php:286
-#: includes/Admin/Menu.php:417
-#: includes/Admin/Menu.php:439
-#: includes/Admin/Menu.php:471
+#: includes/Admin/Menu.php:201
+#: includes/Admin/Menu.php:295
+#: includes/Admin/Menu.php:345
+#: includes/Admin/Menu.php:492
+#: includes/Admin/Menu.php:515
+#: includes/Admin/Menu.php:547
 msgid "Unauthorized: You do not have permission to perform this action."
 msgstr ""
 
-#: includes/Admin/Menu.php:201
-#: includes/Admin/Menu.php:422
-#: includes/Admin/Menu.php:444
-#: includes/Admin/Menu.php:476
+#: includes/Admin/Menu.php:206
+#: includes/Admin/Menu.php:497
+#: includes/Admin/Menu.php:520
+#: includes/Admin/Menu.php:552
 msgid "Security check failed."
 msgstr ""
 
-#: includes/Admin/Menu.php:243
-#: includes/Admin/Menu.php:291
+#: includes/Admin/Menu.php:300
+#: includes/Admin/Menu.php:350
 msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
-#: includes/Admin/Menu.php:277
+#: includes/Admin/Menu.php:336
 msgid "Scan started."
 msgstr ""
 
-#: includes/Admin/Menu.php:332
+#: includes/Admin/Menu.php:365
+msgid "Scan already in progress."
+msgstr ""
+
+#: includes/Admin/Menu.php:405
 msgid "Scan completed."
 msgstr ""
 
-#: includes/Admin/Menu.php:431
+#: includes/Admin/Menu.php:507
 msgid "Progress cleared."
 msgstr ""
 
 #. translators: %d: number of unused media found!
-#: includes/Admin/Menu.php:460
+#: includes/Admin/Menu.php:536
 #, php-format
 msgid "%d unused image found"
 msgid_plural "%d unused media found!"
@@ -232,14 +236,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of items deleted
-#: includes/Admin/Menu.php:505
+#: includes/Admin/Menu.php:581
 #, php-format
 msgid "Successfully deleted %d unused media item."
 msgid_plural "Successfully deleted %d unused media items."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Menu.php:513
+#: includes/Admin/Menu.php:589
 msgid "No unused media items found or failed to delete."
 msgstr ""
 
@@ -282,14 +286,14 @@ msgstr ""
 msgid "File name:"
 msgstr ""
 
-#: includes/Admin/Unused_Media_List.php:1378
+#: includes/Admin/Unused_Media_List.php:1425
 #: includes/Admin/views/tabs/tab-duplicates.php:200
 #: includes/Admin/views/tabs/tab-duplicates.php:286
 msgid "Delete permanently"
 msgstr ""
 
 #. translators: %d: number of deleted media files
-#: includes/Admin/Unused_Media_List.php:1403
+#: includes/Admin/Unused_Media_List.php:1450
 #, php-format
 msgid "%d media file(s) deleted successfully."
 msgstr ""
